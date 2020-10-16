@@ -25,6 +25,8 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class IIdrApplication {
+  private static final int DEFAULT_REMAINING_RETRIES = 10;
+
   private ExecutorService executors;
   private final Map<Method, EntityProcessor> entityProcessorMap;
   private final Properties kafkaConsumerProperties;
@@ -33,19 +35,25 @@ public class IIdrApplication {
   private boolean shutdownHandled = false;
   private boolean hasError = false;
 
+  private int remainingRetries;
 
-  IIdrApplication(Map<Method, EntityProcessor> entityProcessorMap, Object listenerControllerObject, Properties kafkaConsumerProperties) {
+
+  IIdrApplication(final Map<Method, EntityProcessor> entityProcessorMap, final Object listenerControllerObject, final Properties kafkaConsumerProperties, final int remainingRetries) {
+    this.remainingRetries = remainingRetries;
     this.entityProcessorMap = entityProcessorMap;
     this.kafkaConsumerProperties = kafkaConsumerProperties;
     this.listenerControllerObject = listenerControllerObject;
   }
 
-  public static IIdrApplication run(final Object listenerControllerObject, Properties kafkaConsumerProperties) throws IIdrApplicationException {
-    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessor.getListenersMap(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties);
+  public static IIdrApplication run(final Object listenerControllerObject, final Properties kafkaConsumerProperties,final int remainingRetries) throws IIdrApplicationException {
+    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessor.getListenersMap(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties, remainingRetries);
     iidrApplication.run();
     return iidrApplication;
   }
 
+  public static IIdrApplication run(final Object listenerControllerObject, final  Properties kafkaConsumerProperties) throws IIdrApplicationException {
+    return run(listenerControllerObject, kafkaConsumerProperties, DEFAULT_REMAINING_RETRIES);
+  }
 
   private void run(){
     if(!entityProcessorMap.isEmpty()){
@@ -57,7 +65,6 @@ public class IIdrApplication {
 
         executors.execute(() -> {
           final JSONParser jsonParser = new JSONParser();
-          int remainingRetries = 10;
           List<ConsumerRecord<String, String>> records = new ArrayList<>();
           List<Object> entityObjectList = new ArrayList<>();
 

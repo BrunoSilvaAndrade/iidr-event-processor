@@ -48,11 +48,8 @@ public class ListenersProcessor {
       final Type[] genericParameterTypes = listener.getGenericParameterTypes();
       final Parameter[] parameters = listener.getParameters();
 
-      if (parameters.length != 1)
-        throw new IIdrApplicationException(format("The listeners must receive only one argument, the method <%s> is not expecting it", listener.getName()));
-
-      if(!parameters[0].getType().equals(List.class))
-        throw new IIdrApplicationException(format("The listeners must receive a List of entity, the method <%s> is not expecting it", listener.getName()));
+      if (parameters.length != 1 || !parameters[0].getType().equals(List.class))
+        throw new IIdrApplicationException(format("The listeners must receive only one List of some entity, the method <%s> is not expecting it", listener.getName()));
 
       final Type type = ((ParameterizedType)genericParameterTypes[0]).getActualTypeArguments()[0];
 
