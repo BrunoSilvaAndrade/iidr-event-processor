@@ -1,9 +1,8 @@
-package br.com.viavarejo.iidr_event_processor.mock;
+package br.com.viavarejo.iidr_event_processor.mock.processor;
 
 import br.com.viavarejo.iidr_event_processor.annotations.Alias;
 import br.com.viavarejo.iidr_event_processor.annotations.Format;
 import br.com.viavarejo.iidr_event_processor.annotations.Ignore;
-import br.com.viavarejo.iidr_event_processor.annotations.NonNull;
 
 import java.sql.Time;
 import java.sql.Timestamp;

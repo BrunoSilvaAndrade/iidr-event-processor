@@ -3,7 +3,7 @@ package br.com.viavarejo.iidr_event_processor.processor;
 import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.UnsuporttedTypeException;
-import br.com.viavarejo.iidr_event_processor.mock.*;
+import br.com.viavarejo.iidr_event_processor.mock.processor.*;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThrows;

@@ -1,4 +1,4 @@
-package br.com.viavarejo.iidr_event_processor.mock;
+package br.com.viavarejo.iidr_event_processor.mock.processor;
 
 import java.sql.Time;
 import java.sql.Timestamp;
