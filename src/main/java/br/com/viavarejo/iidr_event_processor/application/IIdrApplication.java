@@ -5,6 +5,7 @@ import br.com.viavarejo.iidr_event_processor.exceptions.FieldMayBeNotNullExcepti
 import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
 import br.com.viavarejo.iidr_event_processor.processor.EntityProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.FieldProcessor;
+import br.com.viavarejo.iidr_event_processor.processor.Listener;
 import br.com.viavarejo.iidr_event_processor.processor.ListenersProcessor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -28,7 +29,7 @@ public class IIdrApplication {
   private static final int DEFAULT_REMAINING_RETRIES = 10;
 
   private ExecutorService executors;
-  private final Map<Method, EntityProcessor> entityProcessorMap;
+  private final List<Listener> listenerList;
   private final Properties kafkaConsumerProperties;
   private final Object listenerControllerObject;
 
@@ -38,9 +39,9 @@ public class IIdrApplication {
   private int remainingRetries;
 
 
-  IIdrApplication(final Map<Method, EntityProcessor> entityProcessorMap, final Object listenerControllerObject, final Properties kafkaConsumerProperties, final int remainingRetries) {
+  IIdrApplication(final List<Listener> listenerList, final Object listenerControllerObject, final Properties kafkaConsumerProperties, final int remainingRetries) {
     this.remainingRetries = remainingRetries;
-    this.entityProcessorMap = entityProcessorMap;
+    this.listenerList = listenerList;
     this.kafkaConsumerProperties = kafkaConsumerProperties;
     this.listenerControllerObject = listenerControllerObject;
   }
@@ -56,11 +57,11 @@ public class IIdrApplication {
   }
 
   private void run(){
-    if(!entityProcessorMap.isEmpty()){
-      executors = Executors.newFixedThreadPool(entityProcessorMap.size());
-      for(Map.Entry<Method, EntityProcessor> entry: entityProcessorMap.entrySet()) {
-        final Method method = entry.getKey();
-        final EntityProcessor entityProcessor = entry.getValue();
+    if(!listenerList.isEmpty()){
+      executors = Executors.newFixedThreadPool(listenerList.size());
+      for(Listener listener: listenerList) {
+        final Method method = listener.method;
+        final EntityProcessor entityProcessor = listener.entityProcessor;
         final Consumer<String, String> consumer = getConsumer(method.getDeclaredAnnotation(KafkaListerner.class), kafkaConsumerProperties);
 
         executors.execute(() -> {

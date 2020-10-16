@@ -26,10 +26,10 @@ public class ListenersProcessor {
   private static final FieldParserAndSetter DOUBLE = (o,f,v) -> f.set(o, Double.parseDouble(v));
   private static final FieldParserAndSetter BOOLEAN = (o,f,v) -> f.set(o, Boolean.parseBoolean(v));
 
-  public static Map<Method, EntityProcessor> getListenersMap(final Object listenerControllerObject) throws IIdrApplicationException {
+  public static List<Listener> getListenersMap(final Object listenerControllerObject) throws IIdrApplicationException {
     final Class<?>  listenerControllerClass = listenerControllerObject.getClass();
     final Set<Method> listeners = getListenersFromControllerClass(listenerControllerClass);
-    return getListenerProcessorMap(listeners);
+    return getListenerList(listeners);
   }
 
   public static Set<Method> getListenersFromControllerClass(Class<?> listenerControllerClass) {
@@ -41,27 +41,27 @@ public class ListenersProcessor {
     return listeners;
   }
 
-  private static Map<Method, EntityProcessor> getListenerProcessorMap(Set<Method> listeners) throws IIdrApplicationException {
-    final Map<Method, EntityProcessor> entityMetadataMap = new HashMap<>();
+  private static List<Listener> getListenerList(Set<Method> methodSet) throws IIdrApplicationException {
+    final List<Listener> listenerList = new ArrayList<>();
 
-    for (Method listener : listeners) {
-      final Type[] genericParameterTypes = listener.getGenericParameterTypes();
-      final Parameter[] parameters = listener.getParameters();
+    for (Method method : methodSet) {
+      final Type[] genericParameterTypes = method.getGenericParameterTypes();
+      final Parameter[] parameters = method.getParameters();
 
       if (parameters.length != 1 || !parameters[0].getType().equals(List.class))
-        throw new IIdrApplicationException(format("The listeners must receive only one List of some entity, the method <%s> is not expecting it", listener.getName()));
+        throw new IIdrApplicationException(format("The listeners must receive only one List of some entity, the method <%s> is not expecting it", method.getName()));
 
       final Type type = ((ParameterizedType)genericParameterTypes[0]).getActualTypeArguments()[0];
 
       try {
         Class<?> entityClass = Class.forName(type.getTypeName());
         final List<FieldProcessor> fieldProcessorList = mountFieldProcessorMap(entityClass);
-        entityMetadataMap.put(listener, new EntityProcessor(entityClass, fieldProcessorList));
+        listenerList.add(new Listener(method, new EntityProcessor(entityClass, fieldProcessorList)));
       } catch (ClassNotFoundException cnfe){
         throw new IIdrApplicationException(format("Entity class <%s> not found", type.getTypeName()));
       }
     }
-    return entityMetadataMap;
+    return listenerList;
   }
 
   private static List<FieldProcessor> mountFieldProcessorMap(Class<?> entityClass) throws IIdrApplicationException {
