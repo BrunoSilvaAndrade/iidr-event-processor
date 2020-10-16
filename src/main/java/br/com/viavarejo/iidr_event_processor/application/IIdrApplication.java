@@ -85,7 +85,7 @@ public class IIdrApplication {
 
               for (ConsumerRecord<String, String> record : records) {
                 final Map<String, String> jsonValueMap = (Map<String, String>) jsonParser.parse(record.value());
-                final Object entityObject = entityProcessor.getEntityClassInstace();
+                final Object entityObject = entityProcessor.getEntityClassInstance();
 
                 for (FieldProcessor fieldProcessor : entityProcessor.getFieldProcessorList()) {
                   final String iidrValue = tryFindIIdrValue(fieldProcessor.fieldNames, jsonValueMap);

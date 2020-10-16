@@ -12,7 +12,7 @@ public class EntityProcessor {
     this.fieldProcessorList = fieldProcessorList;
   }
 
-  public Object getEntityClassInstace() throws IIdrApplicationException {
+  public Object getEntityClassInstance() throws IIdrApplicationException {
     try {
       return entityClass.newInstance();
     } catch (IllegalAccessException | InstantiationException e) {

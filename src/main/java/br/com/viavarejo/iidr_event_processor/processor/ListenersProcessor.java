@@ -35,7 +35,7 @@ public class ListenersProcessor {
     return getListenerList(listeners);
   }
 
-  public static Set<Method> getListenersFromControllerClass(Class<?> listenerControllerClass) {
+  private static Set<Method> getListenersFromControllerClass(Class<?> listenerControllerClass) {
     final Set<Method> listeners = new HashSet<>();
     for (Method method : listenerControllerClass.getMethods()) {
       if(method.isAnnotationPresent(KafkaListerner.class))
