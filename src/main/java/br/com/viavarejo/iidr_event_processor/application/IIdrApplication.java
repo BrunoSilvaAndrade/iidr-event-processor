@@ -47,7 +47,7 @@ public class IIdrApplication {
   }
 
   public static IIdrApplication run(final Object listenerControllerObject, final Properties kafkaConsumerProperties,final int remainingRetries) throws IIdrApplicationException {
-    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessor.getListenersMap(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties, remainingRetries);
+    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessor.getListeners(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties, remainingRetries);
     iidrApplication.run();
     return iidrApplication;
   }

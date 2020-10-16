@@ -26,7 +26,7 @@ public class ListenersProcessor {
   private static final FieldParserAndSetter DOUBLE = (o,f,v) -> f.set(o, Double.parseDouble(v));
   private static final FieldParserAndSetter BOOLEAN = (o,f,v) -> f.set(o, Boolean.parseBoolean(v));
 
-  public static List<Listener> getListenersMap(final Object listenerControllerObject) throws IIdrApplicationException {
+  public static List<Listener> getListeners(final Object listenerControllerObject) throws IIdrApplicationException {
     final Class<?>  listenerControllerClass = listenerControllerObject.getClass();
     final Set<Method> listeners = getListenersFromControllerClass(listenerControllerClass);
     return getListenerList(listeners);
