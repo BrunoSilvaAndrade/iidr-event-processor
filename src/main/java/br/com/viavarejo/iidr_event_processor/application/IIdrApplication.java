@@ -27,21 +27,21 @@ import static java.util.Objects.nonNull;
 public class IIdrApplication {
   private ExecutorService executors;
   private final Map<Method, EntityProcessor> entityProcessorMap;
-  private final Properties properties;
+  private final Properties kafkaConsumerProperties;
   private final Object listenerControllerObject;
 
   private boolean shutdownHandled = false;
   private boolean hasError = false;
 
 
-  IIdrApplication(Map<Method, EntityProcessor> entityProcessorMap, Object listenerControllerObject, Properties properties) {
+  IIdrApplication(Map<Method, EntityProcessor> entityProcessorMap, Object listenerControllerObject, Properties kafkaConsumerProperties) {
     this.entityProcessorMap = entityProcessorMap;
-    this.properties = properties;
+    this.kafkaConsumerProperties = kafkaConsumerProperties;
     this.listenerControllerObject = listenerControllerObject;
   }
 
-  public static IIdrApplication run(final Object listenerControllerObject, Properties properties) throws IIdrApplicationException {
-    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessor.getListenersMap(listenerControllerObject), listenerControllerObject, properties);
+  public static IIdrApplication run(final Object listenerControllerObject, Properties kafkaConsumerProperties) throws IIdrApplicationException {
+    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessor.getListenersMap(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties);
     iidrApplication.run();
     return iidrApplication;
   }
@@ -53,7 +53,7 @@ public class IIdrApplication {
       for(Map.Entry<Method, EntityProcessor> entry: entityProcessorMap.entrySet()) {
         final Method method = entry.getKey();
         final EntityProcessor entityProcessor = entry.getValue();
-        final Consumer<String, String> consumer = getConsumer(method.getDeclaredAnnotation(KafkaListerner.class), properties);
+        final Consumer<String, String> consumer = getConsumer(method.getDeclaredAnnotation(KafkaListerner.class), kafkaConsumerProperties);
 
         executors.execute(() -> {
           final JSONParser jsonParser = new JSONParser();
