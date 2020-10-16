@@ -1,8 +1,10 @@
 package br.com.viavarejo.iidr_event_processor.application;
 
 import br.com.viavarejo.iidr_event_processor.annotations.KafkaListerner;
+import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.FieldMayBeNotNullException;
-import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
+import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
+import br.com.viavarejo.iidr_event_processor.exceptions.UnsuporttedTypeException;
 import br.com.viavarejo.iidr_event_processor.processor.EntityProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.FieldProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.Listener;
@@ -46,13 +48,13 @@ public class IIdrApplication {
     this.listenerControllerObject = listenerControllerObject;
   }
 
-  public static IIdrApplication run(final Object listenerControllerObject, final Properties kafkaConsumerProperties,final int remainingRetries) throws IIdrApplicationException {
+  public static IIdrApplication run(final Object listenerControllerObject, final Properties kafkaConsumerProperties,final int remainingRetries) throws ClassNotFoundException, EntityWrongImplementationException, UnsuporttedTypeException, ListenerWrongImplemetationException {
     final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessor.getListeners(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties, remainingRetries);
     iidrApplication.run();
     return iidrApplication;
   }
 
-  public static IIdrApplication run(final Object listenerControllerObject, final  Properties kafkaConsumerProperties) throws IIdrApplicationException {
+  public static IIdrApplication run(final Object listenerControllerObject, final  Properties kafkaConsumerProperties) throws ClassNotFoundException, EntityWrongImplementationException, UnsuporttedTypeException, ListenerWrongImplemetationException {
     return run(listenerControllerObject, kafkaConsumerProperties, DEFAULT_REMAINING_RETRIES);
   }
 
