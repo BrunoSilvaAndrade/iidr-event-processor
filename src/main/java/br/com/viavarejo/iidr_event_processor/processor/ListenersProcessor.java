@@ -92,7 +92,7 @@ public class ListenersProcessor {
     final Alias alias = declaredField.getAnnotation(Alias.class);
     if(nonNull(alias))
       fieldNames.addAll(asList(alias.value()));
-    return fieldNames;
+    return Collections.unmodifiableSet(fieldNames);
   }
 
   private static FieldProcessor mountFieldProcessor(Field field) throws UnsuporttedTypeException, EntityWrongImplementationException {
