@@ -1,7 +1,7 @@
 package br.com.viavarejo.iidr_event_processor.mock.processor;
 
 import br.com.viavarejo.iidr_event_processor.annotations.Alias;
-import br.com.viavarejo.iidr_event_processor.annotations.Format;
+import br.com.viavarejo.iidr_event_processor.annotations.Pattern;
 import br.com.viavarejo.iidr_event_processor.annotations.Ignore;
 
 import java.sql.Time;
@@ -31,16 +31,16 @@ public class RightEntityImplementation {
 
     public boolean _boolean;
 
-    @Format("yyyy-MM-dd")
+    @Pattern("yyyy-MM-dd")
     public Date date;
 
-    @Format("yyyy-MM-dd")
+    @Pattern("yyyy-MM-dd")
     public java.sql.Date sqlDate;
 
-    @Format("HH:mm:ss")
+    @Pattern("HH:mm:ss")
     public Time time;
 
-    @Format("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'000000'")
+    @Pattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'000000'")
     public Timestamp timestamp;
 
     public SomeEnum someEnum;

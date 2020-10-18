@@ -102,11 +102,11 @@ public class ListenersProcessor {
     return new FieldProcessor(field, fieldParserAndSetter, mayBeNull, fieldNames);
   }
 
-  private static String getFormat(Field field) throws EntityWrongImplementationException {
-    Format format = field.getAnnotation(Format.class);
-    if(isNull(format))
-      throw new EntityWrongImplementationException(format("Annotation Format is needed on field <%s>", field.getName()));
-    return format.value();
+  private static String getPattern(Field field) throws EntityWrongImplementationException {
+    Pattern pattern = field.getAnnotation(Pattern.class);
+    if(isNull(pattern))
+      throw new EntityWrongImplementationException(format("Annotation Pattern is needed on field <%s>", field.getName()));
+    return pattern.value();
   }
 
   private static FieldParserAndSetter getFieldParserByType(Field field) throws UnsuporttedTypeException, EntityWrongImplementationException {
@@ -137,23 +137,23 @@ public class ListenersProcessor {
     }
 
     if(Date.class.equals(type)) {
-      final String format = getFormat(field);
-      return (o,f,v) -> f.set(o, Date.from(LocalDate.parse(v, DateTimeFormatter.ofPattern(format)).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+      final String pattern = getPattern(field);
+      return (o,f,v) -> f.set(o, Date.from(LocalDate.parse(v, DateTimeFormatter.ofPattern(pattern)).atStartOfDay(ZoneId.systemDefault()).toInstant()));
     }
 
     if(java.sql.Date.class.equals(type)){
-      final String format = getFormat(field);
-      return (o,f,v)  -> f.set(o, java.sql.Date.valueOf(LocalDate.parse(v, DateTimeFormatter.ofPattern(format))));
+      final String pattern = getPattern(field);
+      return (o,f,v)  -> f.set(o, java.sql.Date.valueOf(LocalDate.parse(v, DateTimeFormatter.ofPattern(pattern))));
     }
 
     if(Time.class.equals(type)) {
-      final String format = getFormat(field);
-      return (o,f,v) -> f.set(o, Time.valueOf(LocalTime.parse(v, DateTimeFormatter.ofPattern(format))));
+      final String pattern = getPattern(field);
+      return (o,f,v) -> f.set(o, Time.valueOf(LocalTime.parse(v, DateTimeFormatter.ofPattern(pattern))));
     }
 
     if(Timestamp.class.equals(type)) {
-      final String format = getFormat(field);
-      return (o,f,v) -> f.set(o, Timestamp.valueOf(LocalDateTime.parse(v, DateTimeFormatter.ofPattern(format))));
+      final String pattern = getPattern(field);
+      return (o,f,v) -> f.set(o, Timestamp.valueOf(LocalDateTime.parse(v, DateTimeFormatter.ofPattern(pattern))));
     }
 
     if(type.isEnum()) {
