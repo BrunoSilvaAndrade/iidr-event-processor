@@ -2,7 +2,7 @@ package br.com.viavarejo.iidr_event_processor.processor;
 
 import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
-import br.com.viavarejo.iidr_event_processor.exceptions.UnsuporttedTypeException;
+import br.com.viavarejo.iidr_event_processor.exceptions.UnsupportedTypeException;
 import br.com.viavarejo.iidr_event_processor.mock.processor.*;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ListenersProcessorTest {
     @Test
-    public void testControllerWithMethodWithoutKafkaAnnotation() throws ClassNotFoundException, EntityWrongImplementationException, UnsuporttedTypeException, ListenerWrongImplemetationException {
+    public void testControllerWithMethodWithoutKafkaAnnotation() throws ClassNotFoundException, EntityWrongImplementationException, UnsupportedTypeException, ListenerWrongImplemetationException {
         List<Listener> listenerList = ListenersProcessor.getListeners(new ControllerWithMethodWithoutKafkaListenerAnnotation());
         assertTrue(listenerList.isEmpty());
     }
@@ -38,7 +38,7 @@ public class ListenersProcessorTest {
 
     @Test
     public  void testEntityWithUnsupportedTypes() {
-        assertThrows(UnsuporttedTypeException.class, () -> ListenersProcessor.getListeners(new ControllerToTesteEntityWithUnsupportedTypes()));
+        assertThrows(UnsupportedTypeException.class, () -> ListenersProcessor.getListeners(new ControllerToTesteEntityWithUnsupportedTypes()));
     }
 
 }

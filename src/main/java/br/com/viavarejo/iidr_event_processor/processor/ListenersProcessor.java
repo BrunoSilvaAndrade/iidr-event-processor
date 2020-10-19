@@ -4,7 +4,7 @@ import br.com.viavarejo.iidr_event_processor.annotations.*;
 import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
-import br.com.viavarejo.iidr_event_processor.exceptions.UnsuporttedTypeException;
+import br.com.viavarejo.iidr_event_processor.exceptions.UnsupportedTypeException;
 
 import java.lang.reflect.*;
 import java.sql.Time;
@@ -29,7 +29,7 @@ public class ListenersProcessor {
   private static final FieldParserAndSetter DOUBLE = (o,f,v) -> f.set(o, Double.parseDouble(v));
   private static final FieldParserAndSetter BOOLEAN = (o,f,v) -> f.set(o, Boolean.parseBoolean(v));
 
-  public static List<Listener> getListeners(final Object listenerControllerObject) throws ClassNotFoundException, EntityWrongImplementationException, UnsuporttedTypeException, ListenerWrongImplemetationException {
+  public static List<Listener> getListeners(final Object listenerControllerObject) throws ClassNotFoundException, EntityWrongImplementationException, UnsupportedTypeException, ListenerWrongImplemetationException {
     final Class<?>  listenerControllerClass = listenerControllerObject.getClass();
     final Set<Method> listeners = getListenersFromControllerClass(listenerControllerClass);
     return getListenerList(listeners);
@@ -44,7 +44,7 @@ public class ListenersProcessor {
     return listeners;
   }
 
-  private static List<Listener> getListenerList(Set<Method> methodSet) throws UnsuporttedTypeException, EntityWrongImplementationException, ListenerWrongImplemetationException, ClassNotFoundException {
+  private static List<Listener> getListenerList(Set<Method> methodSet) throws UnsupportedTypeException, EntityWrongImplementationException, ListenerWrongImplemetationException, ClassNotFoundException {
     final List<Listener> listenerList = new ArrayList<>();
 
     for (Method method : methodSet) {
@@ -63,7 +63,7 @@ public class ListenersProcessor {
     return listenerList;
   }
 
-  private static List<FieldProcessor> mountFieldProcessorMap(Class<?> entityClass) throws UnsuporttedTypeException, EntityWrongImplementationException  {
+  private static List<FieldProcessor> mountFieldProcessorMap(Class<?> entityClass) throws UnsupportedTypeException, EntityWrongImplementationException  {
     final List<FieldProcessor> fieldProcessorList = new ArrayList<>();
     for (Field declaredField : getAllEntityFieldsHierarchy(entityClass)) {
         if(isNotIgnoredField(declaredField)){
@@ -95,7 +95,7 @@ public class ListenersProcessor {
     return Collections.unmodifiableSet(fieldNames);
   }
 
-  private static FieldProcessor mountFieldProcessor(Field field) throws UnsuporttedTypeException, EntityWrongImplementationException {
+  private static FieldProcessor mountFieldProcessor(Field field) throws UnsupportedTypeException, EntityWrongImplementationException {
     final FieldParserAndSetter fieldParserAndSetter = getFieldParserByType(field);
     final boolean mayBeNull = !field.isAnnotationPresent(NonNull.class);
     final Set<String> fieldNames = getAllFieldPossibleNames(field);
@@ -109,7 +109,7 @@ public class ListenersProcessor {
     return pattern.value();
   }
 
-  private static FieldParserAndSetter getFieldParserByType(Field field) throws UnsuporttedTypeException, EntityWrongImplementationException {
+  private static FieldParserAndSetter getFieldParserByType(Field field) throws UnsupportedTypeException, EntityWrongImplementationException {
     final Class<?> type = field.getType();
 
     if(String.class.equals(type)) {
@@ -168,6 +168,6 @@ public class ListenersProcessor {
       };
     }
 
-    throw new UnsuporttedTypeException(format("IIdrApplication does not support type <%s>", type.getCanonicalName()));
+    throw new UnsupportedTypeException(format("IIdrApplication does not support type <%s> of field <%s>", type.getCanonicalName(), field.getName()));
   }
 }

@@ -3,7 +3,7 @@ package br.com.viavarejo.iidr_event_processor.processor;
 import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
-import br.com.viavarejo.iidr_event_processor.exceptions.UnsuporttedTypeException;
+import br.com.viavarejo.iidr_event_processor.exceptions.UnsupportedTypeException;
 import br.com.viavarejo.iidr_event_processor.mock.processor.RightControllerImplementation;
 import br.com.viavarejo.iidr_event_processor.mock.processor.RightEntityImplementation;
 import org.junit.Before;
@@ -17,7 +17,7 @@ public class EntityProcessorTest {
     List<Listener> listenerList;
 
     @Before
-    public void init() throws ClassNotFoundException, EntityWrongImplementationException, UnsuporttedTypeException, ListenerWrongImplemetationException {
+    public void init() throws ClassNotFoundException, EntityWrongImplementationException, UnsupportedTypeException, ListenerWrongImplemetationException {
         listenerList = ListenersProcessor.getListeners(new RightControllerImplementation());
     }
 
