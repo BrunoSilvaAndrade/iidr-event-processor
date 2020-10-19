@@ -34,11 +34,10 @@ public class IIdrApplication {
   private final List<Listener> listenerList;
   private final Properties kafkaConsumerProperties;
   private final Object listenerControllerObject;
+  private final int remainingRetries;
 
   private boolean shutdownHandled = false;
   private boolean hasError = false;
-
-  private int remainingRetries;
 
 
   IIdrApplication(final List<Listener> listenerList, final Object listenerControllerObject, final Properties kafkaConsumerProperties, final int remainingRetries) {
@@ -62,14 +61,15 @@ public class IIdrApplication {
     if(!listenerList.isEmpty()){
       executors = Executors.newFixedThreadPool(listenerList.size());
       for(Listener listener: listenerList) {
-        final Method method = listener.method;
-        final EntityProcessor entityProcessor = listener.entityProcessor;
-        final Consumer<String, String> consumer = getConsumer(method.getDeclaredAnnotation(KafkaListerner.class), kafkaConsumerProperties);
-
         executors.execute(() -> {
+          final Method method = listener.method;
           final JSONParser jsonParser = new JSONParser();
+          final EntityProcessor entityProcessor = listener.entityProcessor;
+          final Consumer<String, String> consumer = getConsumer(method.getDeclaredAnnotation(KafkaListerner.class), kafkaConsumerProperties);
+
           List<ConsumerRecord<String, String>> records = new ArrayList<>();
           List<Object> entityObjectList = new ArrayList<>();
+          int remainingRetries = this.remainingRetries;
 
           while (!shutdownHandled) {
             try {
