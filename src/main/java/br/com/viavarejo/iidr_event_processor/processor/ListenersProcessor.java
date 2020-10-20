@@ -57,13 +57,13 @@ public class ListenersProcessor {
       final Type type = ((ParameterizedType)genericParameterTypes[0]).getActualTypeArguments()[0];
 
       Class<?> entityClass = Class.forName(type.getTypeName());
-      final List<FieldProcessor> fieldProcessorList = mountFieldProcessorMap(entityClass);
+      final List<FieldProcessor> fieldProcessorList = mountFieldProcessorList(entityClass);
       listenerList.add(new Listener(method, new EntityProcessor(entityClass, fieldProcessorList)));
     }
     return listenerList;
   }
 
-  private static List<FieldProcessor> mountFieldProcessorMap(Class<?> entityClass) throws UnsupportedTypeException, EntityWrongImplementationException  {
+  private static List<FieldProcessor> mountFieldProcessorList(Class<?> entityClass) throws EntityWrongImplementationException  {
     final List<FieldProcessor> fieldProcessorList = new ArrayList<>();
     for (Field declaredField : getAllEntityFieldsHierarchy(entityClass)) {
         if(isNotIgnoredField(declaredField)){
@@ -95,11 +95,16 @@ public class ListenersProcessor {
     return Collections.unmodifiableSet(fieldNames);
   }
 
-  private static FieldProcessor mountFieldProcessor(Field field) throws UnsupportedTypeException, EntityWrongImplementationException {
-    final FieldParserAndSetter fieldParserAndSetter = getFieldParserByType(field);
+  private static FieldProcessor mountFieldProcessor(Field field) throws EntityWrongImplementationException {
     final boolean mayBeNull = !field.isAnnotationPresent(NonNull.class);
     final Set<String> fieldNames = getAllFieldPossibleNames(field);
-    return new FieldProcessor(field, fieldParserAndSetter, mayBeNull, fieldNames);
+    try {
+      final FieldParserAndSetter fieldParserAndSetter = getFieldParserByType(field);
+      return new FieldProcessor(field, fieldParserAndSetter, mayBeNull, fieldNames);
+    } catch (UnsupportedTypeException ignored) {
+      final EntityProcessor entityProcessor = new EntityProcessor(field.getType(), mountFieldProcessorList(field.getType()));
+      return  new FieldProcessor(field, entityProcessor);
+    }
   }
 
   private static String getPattern(Field field) throws EntityWrongImplementationException {

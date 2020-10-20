@@ -6,7 +6,7 @@ import java.util.List;
 import static br.com.viavarejo.iidr_event_processor.mock.processor.KafkaListenerParameterMock.ID;
 import static br.com.viavarejo.iidr_event_processor.mock.processor.KafkaListenerParameterMock.TOPIC;
 
-public class ControllerToTesteEntityWithUnsupportedTypes {
+public class ControllerToTestEntityWithCustomTypes {
     @KafkaListerner(id=ID, topics = TOPIC)
-    public void listener(List<EntityWithUnsupportedType> entityWithUnsupportedTypeList){}
+    public void listener(List<EntityWithCustomType> entityWithCustomTypeList){}
 }

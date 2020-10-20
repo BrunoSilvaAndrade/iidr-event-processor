@@ -1,10 +1,7 @@
 package br.com.viavarejo.iidr_event_processor.application;
 
 import br.com.viavarejo.iidr_event_processor.annotations.KafkaListerner;
-import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementationException;
-import br.com.viavarejo.iidr_event_processor.exceptions.FieldMayBeNotNullException;
-import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
-import br.com.viavarejo.iidr_event_processor.exceptions.UnsupportedTypeException;
+import br.com.viavarejo.iidr_event_processor.exceptions.*;
 import br.com.viavarejo.iidr_event_processor.processor.EntityProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.FieldProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.Listener;
@@ -85,16 +82,7 @@ public class IIdrApplication {
 
               for (ConsumerRecord<String, String> record : records) {
                 final Map<String, String> jsonValueMap = (Map<String, String>) jsonParser.parse(record.value());
-                final Object entityObject = entityProcessor.getEntityClassInstance();
-
-                for (FieldProcessor fieldProcessor : entityProcessor.getFieldProcessorList()) {
-                  final String iidrValue = tryFindIIdrValue(fieldProcessor.fieldNames, jsonValueMap);
-                  if(isNull(iidrValue) && !fieldProcessor.mayBeNull) {
-                    throw new FieldMayBeNotNullException(format("Field <%s> of <%s> was not found or its value is null in %s", fieldProcessor.getNativeFieldName(), entityObject.getClass().getCanonicalName(), record.value()));
-                  }else if(nonNull(iidrValue)){
-                    fieldProcessor.proccessField(entityObject, iidrValue.trim());
-                  }
-                }
+                final Object entityObject = mapObject(entityProcessor, jsonValueMap, record.value());
                 entityObjectList.add(entityObject);
               }
               method.invoke(listenerControllerObject, entityObjectList);
@@ -118,6 +106,23 @@ public class IIdrApplication {
         });
       }
     }
+  }
+
+  private Object mapObject(EntityProcessor entityProcessor, Map<String, String> jsonValueMap, String jsonString) throws Exception {
+    final Object entityObject = entityProcessor.getEntityClassInstance();
+    for (FieldProcessor fieldProcessor : entityProcessor.getFieldProcessorList()) {
+      if(fieldProcessor.isCustomEntity){
+        fieldProcessor.processCustomField(entityObject, mapObject(fieldProcessor.entityProcessor, jsonValueMap, jsonString));
+        continue;
+      }
+      final String iidrValue = tryFindIIdrValue(fieldProcessor.fieldNames, jsonValueMap);
+      if(isNull(iidrValue) && !fieldProcessor.mayBeNull) {
+        throw new FieldMayBeNotNullException(format("Field <%s> of <%s> was not found or its value is null in %s", fieldProcessor.getNativeFieldName(), entityObject.getClass().getCanonicalName(), jsonString));
+      }else if(nonNull(iidrValue)){
+        fieldProcessor.proccessField(entityObject, iidrValue.trim());
+      }
+    }
+    return entityObject;
   }
 
   private static Consumer<String, String> getConsumer(KafkaListerner kafkaListerner, Properties properties) {
