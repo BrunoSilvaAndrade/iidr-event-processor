@@ -103,7 +103,7 @@ public class IIdrApplication {
             consumer.commitAsync();
             records.clear();
             entityObjectList.clear();
-            remainingRetries = 10;
+            remainingRetries = this.remainingRetries;
           }
           close();
         });
