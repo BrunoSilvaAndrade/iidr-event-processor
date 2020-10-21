@@ -9,10 +9,10 @@ import java.sql.Timestamp;
 public abstract class IIdrEntity {
   @NonNull
   @Alias("AUD_ENTTYP")
-  IIdrOperationEnum operation;
+  private IIdrOperationEnum operation;
 
   @NonNull
   @Alias("AUD_APPLY_TIMESTAMP")
   @Pattern("yyyy-MM-dd-HH.mm.ss.nnnnnn")
-  Timestamp  operationTimestamp;
+  private Timestamp  operationTimestamp;
 }
