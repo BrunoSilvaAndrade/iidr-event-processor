@@ -13,7 +13,7 @@ public abstract class IIdrEntity {
 
   @NonNull
   @Alias("AUD_APPLY_TIMESTAMP")
-  @Pattern("yyyy-MM-dd-HH.mm.ss.nnnnnn")
+  @Pattern("yyyy-MM-dd-HH.mm.ss.SSSSSS")
   private Timestamp  operationTimestamp;
 
   public IIdrOperationEnum getOperation() {
