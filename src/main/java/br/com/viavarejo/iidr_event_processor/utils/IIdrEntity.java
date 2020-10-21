@@ -15,4 +15,12 @@ public abstract class IIdrEntity {
   @Alias("AUD_APPLY_TIMESTAMP")
   @Pattern("yyyy-MM-dd-HH.mm.ss.nnnnnn")
   private Timestamp  operationTimestamp;
+
+  public IIdrOperationEnum getOperation() {
+    return operation;
+  }
+
+  public Timestamp getOperationTimestamp() {
+    return operationTimestamp;
+  }
 }
