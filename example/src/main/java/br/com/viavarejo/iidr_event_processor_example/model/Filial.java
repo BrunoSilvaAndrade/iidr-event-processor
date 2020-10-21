@@ -47,6 +47,10 @@ public class Filial extends IIdrEntity {
   @Ignore
   private String ignoredField;
 
+  public Date getDataInauguracao() {
+    return dataInauguracao;
+  }
+
 
   //You can use others custom objects into an entity
 }

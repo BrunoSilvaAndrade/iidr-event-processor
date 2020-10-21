@@ -7,8 +7,14 @@ import java.util.List;
 
 public class EventListenersController {
 
-  @KafkaListerner(id="someId", topics = {"listOfTopics"})
+  @KafkaListerner(id="someId", topics = {"some.topic"})
   public void someWorker(List<Filial> filialList){
+    System.out.println("List size: "+ filialList.size());
+    filialList.forEach(filial -> {
+      System.out.println(filial.getOperation());
+      System.out.println(filial.getOperationTimestamp());
+      System.out.println(filial.getDataInauguracao());
+    });
     //When any event is produced of any topic of that topic list in annotation this method will be invoked with a list of your entity with type parsed already
     //now you can do anything with your entityList
   }
