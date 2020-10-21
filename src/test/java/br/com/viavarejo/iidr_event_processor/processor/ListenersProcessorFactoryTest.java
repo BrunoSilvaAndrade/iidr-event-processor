@@ -11,36 +11,36 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class ListenersProcessorTest {
+public class ListenersProcessorFactoryTest {
     @Test
     public void testControllerWithMethodWithoutKafkaAnnotation() throws ClassNotFoundException, EntityWrongImplementationException, UnsupportedTypeException, ListenerWrongImplemetationException {
-        List<Listener> listenerList = ListenersProcessor.getListeners(new ControllerWithMethodWithoutKafkaListenerAnnotation());
+        List<Listener> listenerList = ListenersProcessorFactory.getListeners(new ControllerWithMethodWithoutKafkaListenerAnnotation());
         assertTrue(listenerList.isEmpty());
     }
 
     @Test
     public void testControllerWithMethodWithoutParameters(){
-        assertThrows(ListenerWrongImplemetationException.class, () -> ListenersProcessor.getListeners(new ControllerWithMethodWithoutParameters()));
+        assertThrows(ListenerWrongImplemetationException.class, () -> ListenersProcessorFactory.getListeners(new ControllerWithMethodWithoutParameters()));
     }
 
     @Test
     public void testControllerWithMethodWithWrongParameters(){
-        assertThrows(ListenerWrongImplemetationException.class, () -> ListenersProcessor.getListeners(new ControllerWithMethodWithWrongParameters()));
+        assertThrows(ListenerWrongImplemetationException.class, () -> ListenersProcessorFactory.getListeners(new ControllerWithMethodWithWrongParameters()));
     }
 
     @Test
     public void testControllerWithMethodWithUnknownGenericType(){
-        assertThrows(ClassNotFoundException.class, () -> ListenersProcessor.getListeners(new ControllerWithMethodWithUnknownGenericType()));
+        assertThrows(ClassNotFoundException.class, () -> ListenersProcessorFactory.getListeners(new ControllerWithMethodWithUnknownGenericType()));
     }
 
     @Test
     public void testEntityWithTimFieldsWithoutFormatAnnotatiion(){
-        assertThrows(EntityWrongImplementationException.class, () -> ListenersProcessor.getListeners(new ControllerToTestEntityWithoutFormatTimeFields()));
+        assertThrows(EntityWrongImplementationException.class, () -> ListenersProcessorFactory.getListeners(new ControllerToTestEntityWithoutFormatTimeFields()));
     }
 
     @Test
     public  void testEntityWithUnsupportedTypes() throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException, UnsupportedTypeException, IIdrApplicationException {
-        final List<Listener> listenerList = ListenersProcessor.getListeners(new ControllerToTestEntityWithCustomTypes());
+        final List<Listener> listenerList = ListenersProcessorFactory.getListeners(new ControllerToTestEntityWithCustomTypes());
         boolean isCustomEntity = false;
         Object entityObject = null;
         for (Listener listener : listenerList) {

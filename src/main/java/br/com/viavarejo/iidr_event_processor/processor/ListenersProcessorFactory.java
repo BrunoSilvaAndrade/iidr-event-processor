@@ -21,7 +21,7 @@ import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-public class ListenersProcessor {
+public class ListenersProcessorFactory {
   private static final FieldParserAndSetter STRING = (o,f,v) -> f.set(o, v);
   private static final FieldParserAndSetter LONG = (o,f,v) -> f.set(o, Long.parseLong(v));
   private static final FieldParserAndSetter INT = (o,f,v) -> f.set(o, Integer.parseInt(v));
@@ -29,7 +29,7 @@ public class ListenersProcessor {
   private static final FieldParserAndSetter DOUBLE = (o,f,v) -> f.set(o, Double.parseDouble(v));
   private static final FieldParserAndSetter BOOLEAN = (o,f,v) -> f.set(o, Boolean.parseBoolean(v));
 
-  public static List<Listener> getListeners(final Object listenerControllerObject) throws ClassNotFoundException, EntityWrongImplementationException, UnsupportedTypeException, ListenerWrongImplemetationException {
+  public static List<Listener> getListeners(final Object listenerControllerObject) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
     final Class<?>  listenerControllerClass = listenerControllerObject.getClass();
     final Set<Method> listeners = getListenersFromControllerClass(listenerControllerClass);
     return getListenerList(listeners);
@@ -44,7 +44,7 @@ public class ListenersProcessor {
     return listeners;
   }
 
-  private static List<Listener> getListenerList(Set<Method> methodSet) throws UnsupportedTypeException, EntityWrongImplementationException, ListenerWrongImplemetationException, ClassNotFoundException {
+  private static List<Listener> getListenerList(Set<Method> methodSet) throws  EntityWrongImplementationException, ListenerWrongImplemetationException, ClassNotFoundException {
     final List<Listener> listenerList = new ArrayList<>();
 
     for (Method method : methodSet) {

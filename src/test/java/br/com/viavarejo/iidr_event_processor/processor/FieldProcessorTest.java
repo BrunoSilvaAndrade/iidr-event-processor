@@ -22,7 +22,7 @@ public class FieldProcessorTest {
 
     @Before
     public void init() throws ClassNotFoundException, EntityWrongImplementationException, UnsupportedTypeException, ListenerWrongImplemetationException {
-        listenerList = ListenersProcessor.getListeners(new RightControllerImplementation());
+        listenerList = ListenersProcessorFactory.getListeners(new RightControllerImplementation());
         eventMapSimulation = new HashMap<>();
         eventMapSimulation.put("string1", STRING_FIELD_VALUE);
         eventMapSimulation.put("_long", "1000000");

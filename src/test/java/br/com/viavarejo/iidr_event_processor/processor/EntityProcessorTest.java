@@ -18,7 +18,7 @@ public class EntityProcessorTest {
 
     @Before
     public void init() throws ClassNotFoundException, EntityWrongImplementationException, UnsupportedTypeException, ListenerWrongImplemetationException {
-        listenerList = ListenersProcessor.getListeners(new RightControllerImplementation());
+        listenerList = ListenersProcessorFactory.getListeners(new RightControllerImplementation());
     }
 
     @Test

@@ -8,7 +8,7 @@ import br.com.viavarejo.iidr_event_processor.exceptions.UnsupportedTypeException
 import br.com.viavarejo.iidr_event_processor.processor.EntityProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.FieldProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.Listener;
-import br.com.viavarejo.iidr_event_processor.processor.ListenersProcessor;
+import br.com.viavarejo.iidr_event_processor.processor.ListenersProcessorFactory;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -48,7 +48,7 @@ public class IIdrApplication {
   }
 
   public static IIdrApplication run(final Object listenerControllerObject, final Properties kafkaConsumerProperties,final int remainingRetries) throws ClassNotFoundException, EntityWrongImplementationException, UnsupportedTypeException, ListenerWrongImplemetationException {
-    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessor.getListeners(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties, remainingRetries);
+    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessorFactory.getListeners(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties, remainingRetries);
     iidrApplication.run();
     return iidrApplication;
   }
