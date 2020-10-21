@@ -1,6 +1,7 @@
 package br.com.viavarejo.iidr_event_processor.processor;
 
 import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
+
 import java.util.List;
 
 public class EntityProcessor {
