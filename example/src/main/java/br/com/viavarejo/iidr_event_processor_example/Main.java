@@ -10,7 +10,7 @@ public class Main {
   public static void main(String[] args) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
     final Properties consumerProps = new Properties();
     consumerProps.put("bootstrap.servers", "localhost:9092");
-    IIdrApplication iIdrApplication = IIdrApplication.run(new EventListenersController(), consumerProps);
+    IIdrApplication iIdrApplication = IIdrApplication.run(new EventListenersController(), consumerProps, (exception, eventMap, eventString) -> System.out.println(eventString));
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       boolean hasError;

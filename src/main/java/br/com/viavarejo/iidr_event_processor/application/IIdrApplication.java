@@ -3,6 +3,7 @@ package br.com.viavarejo.iidr_event_processor.application;
 import br.com.viavarejo.iidr_event_processor.annotations.KafkaListerner;
 import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.FieldMayBeNotNullException;
+import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
 import br.com.viavarejo.iidr_event_processor.processor.EntityProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.FieldProcessor;
@@ -29,6 +30,7 @@ import static java.util.Objects.nonNull;
 public class IIdrApplication {
   private static final int DEFAULT_REMAINING_RETRIES = 10;
 
+  private final IIdrEntityParserErrorCallback callback;
   private ExecutorService executors;
   private final List<Listener> listenerList;
   private final Properties kafkaConsumerProperties;
@@ -39,21 +41,31 @@ public class IIdrApplication {
   private boolean hasError = false;
 
 
-  IIdrApplication(final List<Listener> listenerList, final Object listenerControllerObject, final Properties kafkaConsumerProperties, final int remainingRetries) {
+  IIdrApplication(final List<Listener> listenerList, final Object listenerControllerObject, final Properties kafkaConsumerProperties, final IIdrEntityParserErrorCallback callback, final int remainingRetries) {
     this.remainingRetries = remainingRetries;
     this.listenerList = listenerList;
     this.kafkaConsumerProperties = kafkaConsumerProperties;
     this.listenerControllerObject = listenerControllerObject;
+    this.callback = callback;
   }
 
-  public static IIdrApplication run(final Object listenerControllerObject, final Properties kafkaConsumerProperties,final int remainingRetries) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
-    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessorFactory.getListeners(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties, remainingRetries);
+  public static IIdrApplication run(
+      final Object listenerControllerObject,
+      final Properties kafkaConsumerProperties,
+      final IIdrEntityParserErrorCallback callback,
+      final int remainingRetries
+  ) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
+    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessorFactory.getListeners(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties, callback, remainingRetries);
     iidrApplication.run();
     return iidrApplication;
   }
 
   public static IIdrApplication run(final Object listenerControllerObject, final  Properties kafkaConsumerProperties) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
-    return run(listenerControllerObject, kafkaConsumerProperties, DEFAULT_REMAINING_RETRIES);
+    return run(listenerControllerObject, kafkaConsumerProperties, (e,dv,nv)->{throw e;}, DEFAULT_REMAINING_RETRIES);
+  }
+
+  public static IIdrApplication run(final Object listenerControllerObject, final Properties kafkaConsumerProperties, final IIdrEntityParserErrorCallback callback) throws EntityWrongImplementationException, ListenerWrongImplemetationException, ClassNotFoundException {
+    return run(listenerControllerObject, kafkaConsumerProperties, callback, DEFAULT_REMAINING_RETRIES);
   }
 
   private void run(){
@@ -84,8 +96,12 @@ public class IIdrApplication {
 
               for (ConsumerRecord<String, String> record : records) {
                 final Map<String, String> jsonValueMap = (Map<String, String>) jsonParser.parse(record.value());
-                final Object entityObject = mapObject(entityProcessor, jsonValueMap, record.value());
-                entityObjectList.add(entityObject);
+                try {
+                  final Object entityObject = mapObject(entityProcessor, jsonValueMap, record.value());
+                  entityObjectList.add(entityObject);
+                }catch (Exception e) {
+                  callback.call(e, jsonValueMap, record.value());
+                }
               }
               method.invoke(listenerControllerObject, entityObjectList);
             } catch (Exception e) {
@@ -121,7 +137,11 @@ public class IIdrApplication {
       if(isNull(iidrValue) && !fieldProcessor.mayBeNull) {
         throw new FieldMayBeNotNullException(format("Field <%s> of <%s> was not found or its value is null in %s", fieldProcessor.getNativeFieldName(), entityObject.getClass().getCanonicalName(), jsonString));
       }else if(nonNull(iidrValue)){
-        fieldProcessor.proccessField(entityObject, iidrValue.trim());
+        try {
+          fieldProcessor.proccessField(entityObject, iidrValue.trim());
+        } catch (Exception e) {
+          throw new IIdrApplicationException(format("Fail to parse iidrValue \"%s\" to set in field <%s> of class %s", iidrValue, fieldProcessor.getNativeFieldName(), entityObject.getClass().getCanonicalName()), e);
+        }
       }
     }
     return entityObject;
