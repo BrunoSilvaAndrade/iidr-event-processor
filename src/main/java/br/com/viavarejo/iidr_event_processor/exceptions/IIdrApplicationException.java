@@ -5,6 +5,10 @@ public class IIdrApplicationException extends Exception {
     super(msg);
   }
 
+  public IIdrApplicationException(Throwable e){
+    super(e);
+  }
+
   public IIdrApplicationException(String msg, Throwable e){
     super(msg, e);
   }

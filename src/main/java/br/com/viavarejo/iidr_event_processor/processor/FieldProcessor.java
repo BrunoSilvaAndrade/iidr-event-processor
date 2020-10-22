@@ -1,5 +1,7 @@
 package br.com.viavarejo.iidr_event_processor.processor;
 
+import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
+
 import java.lang.reflect.Field;
 import java.util.Set;
 
@@ -28,8 +30,13 @@ public class FieldProcessor {
     this(field, null, false, null, true, entityProcessor);
   }
 
-  public void processCustomField(Object entityObject, Object customEntityObject) throws IllegalAccessException {
-    field.set(entityObject, customEntityObject);
+  public void processCustomField(Object entityObject, Object customEntityObject) throws IIdrApplicationException {
+    try {
+      field.set(entityObject, customEntityObject);
+    } catch (IllegalAccessException ie) {
+      throw new IIdrApplicationException(ie);
+    }
+
   }
 
   public void proccessField(Object object, String iidrValue) throws Exception {

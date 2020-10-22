@@ -1,10 +1,7 @@
 package br.com.viavarejo.iidr_event_processor.application;
 
 import br.com.viavarejo.iidr_event_processor.annotations.KafkaListerner;
-import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementationException;
-import br.com.viavarejo.iidr_event_processor.exceptions.FieldMayBeNotNullException;
-import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
-import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
+import br.com.viavarejo.iidr_event_processor.exceptions.*;
 import br.com.viavarejo.iidr_event_processor.processor.EntityProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.FieldProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.Listener;
@@ -15,6 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
@@ -61,7 +59,7 @@ public class IIdrApplication {
   }
 
   public static IIdrApplication run(final Object listenerControllerObject, final  Properties kafkaConsumerProperties) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
-    return run(listenerControllerObject, kafkaConsumerProperties, (e,dv,nv)->{throw e;}, DEFAULT_REMAINING_RETRIES);
+    return run(listenerControllerObject, kafkaConsumerProperties, (e,cr)->{throw e;}, DEFAULT_REMAINING_RETRIES);
   }
 
   public static IIdrApplication run(final Object listenerControllerObject, final Properties kafkaConsumerProperties, final IIdrEntityParserErrorCallback callback) throws EntityWrongImplementationException, ListenerWrongImplemetationException, ClassNotFoundException {
@@ -95,12 +93,14 @@ public class IIdrApplication {
               }
 
               for (ConsumerRecord<String, String> record : records) {
-                final Map<String, String> jsonValueMap = (Map<String, String>) jsonParser.parse(record.value());
                 try {
-                  final Object entityObject = mapObject(entityProcessor, jsonValueMap, record.value());
+                  final Map<String, String> jsonValueMap = (Map<String, String>) jsonParser.parse(record.value());
+                  final Object entityObject = mapObject(entityProcessor, jsonValueMap);
                   entityObjectList.add(entityObject);
-                }catch (Exception e) {
-                  callback.call(e, jsonValueMap, record.value());
+                }catch (IIdrApplicationException | FieldMayBeNotNullException e) {
+                  callback.call(e,record);
+                }catch (ParseException pe){
+                  callback.call(new WrongJsonSyntaxException(pe), record);
                 }
               }
               method.invoke(listenerControllerObject, entityObjectList);
@@ -126,16 +126,16 @@ public class IIdrApplication {
     }
   }
 
-  private Object mapObject(EntityProcessor entityProcessor, Map<String, String> jsonValueMap, String jsonString) throws Exception {
+  private Object mapObject(EntityProcessor entityProcessor, Map<String, String> jsonValueMap) throws IIdrApplicationException, FieldMayBeNotNullException{
     final Object entityObject = entityProcessor.getEntityClassInstance();
     for (FieldProcessor fieldProcessor : entityProcessor.getFieldProcessorList()) {
       if(fieldProcessor.isCustomEntity){
-        fieldProcessor.processCustomField(entityObject, mapObject(fieldProcessor.entityProcessor, jsonValueMap, jsonString));
+        fieldProcessor.processCustomField(entityObject, mapObject(fieldProcessor.entityProcessor, jsonValueMap));
         continue;
       }
       final String iidrValue = tryFindIIdrValue(fieldProcessor.fieldNames, jsonValueMap);
       if(isNull(iidrValue) && !fieldProcessor.mayBeNull) {
-        throw new FieldMayBeNotNullException(format("Field <%s> of <%s> was not found or its value is null in %s", fieldProcessor.getNativeFieldName(), entityObject.getClass().getCanonicalName(), jsonString));
+        throw new FieldMayBeNotNullException(format("Field <%s> of <%s> was not found or its value is null in the event", fieldProcessor.getNativeFieldName(), entityObject.getClass().getCanonicalName()));
       }else if(nonNull(iidrValue)){
         try {
           fieldProcessor.proccessField(entityObject, iidrValue.trim());

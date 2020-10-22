@@ -6,11 +6,18 @@ import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetati
 
 import java.util.Properties;
 
+import static java.lang.String.format;
+
 public class Main {
   public static void main(String[] args) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
     final Properties consumerProps = new Properties();
     consumerProps.put("bootstrap.servers", "localhost:9092");
-    IIdrApplication iIdrApplication = IIdrApplication.run(new EventListenersController(), consumerProps, (exception, eventMap, eventString) -> System.out.println(eventString));
+    IIdrApplication iIdrApplication = IIdrApplication.run(new EventListenersController(), consumerProps, (exception, consumerRecord) -> {
+      //Example of handling a parser entity error
+      System.out.println(format("handling json to entity error cause of value of topic <%s>:", consumerRecord.topic()));
+      exception.printStackTrace();
+      System.out.println(format("EventValue %s", consumerRecord.value()));
+    });
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       boolean hasError;

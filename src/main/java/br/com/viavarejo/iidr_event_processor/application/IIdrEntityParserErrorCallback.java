@@ -1,8 +1,8 @@
 package br.com.viavarejo.iidr_event_processor.application;
 
-import java.util.Map;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 @FunctionalInterface
 public interface IIdrEntityParserErrorCallback {
-  public void call(Exception e, Map<String, String> iIdrEventDeserialized, String iidrNativeEvent) throws Exception;
+  public void call(Exception e, ConsumerRecord consumerRecord) throws Exception;
 }
