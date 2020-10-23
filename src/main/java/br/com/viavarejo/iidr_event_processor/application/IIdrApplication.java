@@ -147,9 +147,11 @@ public class IIdrApplication {
     return entityObject;
   }
 
-  private static Consumer<String, String> getConsumer(KafkaListerner kafkaListerner, Properties properties) {
-    properties.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaListerner.id());
-    final Consumer<String, String> consumer = new KafkaConsumer<>(properties, new StringDeserializer(), new StringDeserializer());
+  private static Consumer<String, String> getConsumer(KafkaListerner kafkaListerner, Properties consumerProps) {
+    final Properties props = new Properties();
+    props.putAll(consumerProps);
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaListerner.id());
+    final Consumer<String, String> consumer = new KafkaConsumer<>(props, new StringDeserializer(), new StringDeserializer());
     consumer.subscribe(asList(kafkaListerner.topics()));
     return consumer;
   }
