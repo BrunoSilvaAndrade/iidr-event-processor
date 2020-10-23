@@ -71,7 +71,7 @@ public class ListenersProcessorFactory {
           fieldProcessorList.add(mountFieldProcessor(declaredField));
         }
     }
-    return fieldProcessorList;
+    return Collections.unmodifiableList(fieldProcessorList);
   }
 
   private static List<Field> getAllEntityFieldsHierarchy(Class<?> entityClass) {

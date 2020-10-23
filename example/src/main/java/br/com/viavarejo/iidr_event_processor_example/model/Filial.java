@@ -53,4 +53,9 @@ public class Filial extends IIdrEntity {
 
 
   //You can use others custom objects into an entity
+  private Empresa empresa;
+
+  public Empresa getEmpresa() {
+    return empresa;
+  }
 }
