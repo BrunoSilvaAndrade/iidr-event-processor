@@ -3,9 +3,8 @@ package br.com.viavarejo.iidr_event_processor.processor;
 import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
-import br.com.viavarejo.iidr_event_processor.exceptions.UnsupportedTypeException;
-import br.com.viavarejo.iidr_event_processor.mock.processor.RightControllerImplementation;
-import br.com.viavarejo.iidr_event_processor.mock.processor.RightEntityImplementation;
+import br.com.viavarejo.iidr_event_processor.processor.scenarios.RightControllerImplementation;
+import br.com.viavarejo.iidr_event_processor.processor.scenarios.RightEntityImplementation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +20,7 @@ public class FieldProcessorTest {
     List<Listener> listenerList;
 
     @Before
-    public void init() throws ClassNotFoundException, EntityWrongImplementationException, UnsupportedTypeException, ListenerWrongImplemetationException {
+    public void init() throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
         listenerList = ListenersProcessorFactory.getListeners(new RightControllerImplementation());
         eventMapSimulation = new HashMap<>();
         eventMapSimulation.put("string1", STRING_FIELD_VALUE);

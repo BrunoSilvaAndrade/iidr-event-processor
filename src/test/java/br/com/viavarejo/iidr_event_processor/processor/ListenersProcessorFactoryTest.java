@@ -4,7 +4,7 @@ import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementatio
 import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.UnsupportedTypeException;
-import br.com.viavarejo.iidr_event_processor.mock.processor.*;
+import br.com.viavarejo.iidr_event_processor.processor.scenarios.*;
 import org.junit.Test;
 
 import java.util.List;

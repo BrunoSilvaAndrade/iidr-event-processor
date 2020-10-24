@@ -137,11 +137,7 @@ public class IIdrApplication {
       if(isNull(iidrValue) && !fieldProcessor.mayBeNull) {
         throw new FieldMayBeNotNullException(format("Field <%s> of <%s> was not found or its value is null in the event", fieldProcessor.getNativeFieldName(), entityObject.getClass().getCanonicalName()));
       }else if(nonNull(iidrValue)){
-        try {
-          fieldProcessor.proccessField(entityObject, iidrValue.trim());
-        } catch (Exception e) {
-          throw new IIdrApplicationException(format("Fail to parse iidrValue \"%s\" to set in field <%s> of class %s", iidrValue, fieldProcessor.getNativeFieldName(), entityObject.getClass().getCanonicalName()), e);
-        }
+        fieldProcessor.proccessField(entityObject, iidrValue.trim());
       }
     }
     return entityObject;

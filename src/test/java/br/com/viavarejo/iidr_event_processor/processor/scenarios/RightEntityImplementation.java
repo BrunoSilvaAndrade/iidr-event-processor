@@ -1,4 +1,4 @@
-package br.com.viavarejo.iidr_event_processor.mock.processor;
+package br.com.viavarejo.iidr_event_processor.processor.scenarios;
 
 import br.com.viavarejo.iidr_event_processor.annotations.Alias;
 import br.com.viavarejo.iidr_event_processor.annotations.Ignore;

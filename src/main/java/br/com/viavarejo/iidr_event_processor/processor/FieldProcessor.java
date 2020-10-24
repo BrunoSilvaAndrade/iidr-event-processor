@@ -5,6 +5,8 @@ import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException
 import java.lang.reflect.Field;
 import java.util.Set;
 
+import static java.lang.String.format;
+
 public class FieldProcessor {
   final public Field field;
   final public boolean mayBeNull;
@@ -39,8 +41,12 @@ public class FieldProcessor {
 
   }
 
-  public void proccessField(Object object, String iidrValue) throws Exception {
-    this.fieldParserAndSetter.parseAndSet(object, field, iidrValue);
+  public void proccessField(Object entityObject, String iidrValue) throws IIdrApplicationException {
+    try{
+      this.fieldParserAndSetter.parseAndSet(entityObject, field, iidrValue);
+    }catch (Exception e){
+      throw new IIdrApplicationException(format("Fail to parse iidrValue \"%s\" to set in field <%s> of class %s", iidrValue, getNativeFieldName(), entityObject.getClass().getCanonicalName()), e);
+    }
   }
 
   public String getNativeFieldName() {

@@ -4,8 +4,8 @@ import br.com.viavarejo.iidr_event_processor.exceptions.EntityWrongImplementatio
 import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetationException;
 import br.com.viavarejo.iidr_event_processor.exceptions.UnsupportedTypeException;
-import br.com.viavarejo.iidr_event_processor.mock.processor.RightControllerImplementation;
-import br.com.viavarejo.iidr_event_processor.mock.processor.RightEntityImplementation;
+import br.com.viavarejo.iidr_event_processor.processor.scenarios.RightControllerImplementation;
+import br.com.viavarejo.iidr_event_processor.processor.scenarios.RightEntityImplementation;
 import org.junit.Before;
 import org.junit.Test;
 

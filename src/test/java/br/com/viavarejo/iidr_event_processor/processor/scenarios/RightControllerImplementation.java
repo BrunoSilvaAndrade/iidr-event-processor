@@ -1,4 +1,4 @@
-package br.com.viavarejo.iidr_event_processor.mock.processor;
+package br.com.viavarejo.iidr_event_processor.processor.scenarios;
 
 import java.util.List;
 
