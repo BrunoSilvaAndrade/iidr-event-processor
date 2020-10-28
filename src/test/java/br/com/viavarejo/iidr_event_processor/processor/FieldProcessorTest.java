@@ -54,8 +54,8 @@ public class FieldProcessorTest {
                 assertEquals(STRING_FIELD_VALUE, rightEntityImplementation.string);
                 assertEquals(1000000, rightEntityImplementation._long);
                 assertEquals(10, rightEntityImplementation._int);
-                assertEquals(1.0, rightEntityImplementation._float);
-                assertEquals(1.0, rightEntityImplementation._double);
+                assertEquals(1.0, rightEntityImplementation._float,0);
+                assertEquals(1.0, rightEntityImplementation._double, 0);
                 assertTrue(rightEntityImplementation._boolean);
                 assertNotNull(rightEntityImplementation.date);
                 assertNotNull(rightEntityImplementation.sqlDate);

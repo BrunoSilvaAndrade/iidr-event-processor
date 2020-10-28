@@ -11,6 +11,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -39,7 +40,7 @@ public class IIdrApplication {
   private boolean hasError = false;
 
 
-  IIdrApplication(final List<Listener> listenerList, final Object listenerControllerObject, final Properties kafkaConsumerProperties, final IIdrEntityParserErrorCallback callback, final int remainingRetries) {
+  private IIdrApplication(final List<Listener> listenerList, final Object listenerControllerObject, final Properties kafkaConsumerProperties, final IIdrEntityParserErrorCallback callback, final int remainingRetries) {
     this.remainingRetries = remainingRetries;
     this.listenerList = listenerList;
     this.kafkaConsumerProperties = kafkaConsumerProperties;
@@ -94,8 +95,8 @@ public class IIdrApplication {
 
               for (ConsumerRecord<String, String> record : records) {
                 try {
-                  final Map<String, String> jsonValueMap = (Map<String, String>) jsonParser.parse(record.value());
-                  final Object entityObject = mapObject(entityProcessor, jsonValueMap);
+                  final JSONObject jsonObject = (JSONObject) jsonParser.parse(record.value());
+                  final Object entityObject = mapObject(entityProcessor, jsonObject);
                   entityObjectList.add(entityObject);
                 }catch (IIdrApplicationException | FieldMayBeNotNullException e) {
                   callback.call(e,record);
@@ -126,14 +127,14 @@ public class IIdrApplication {
     }
   }
 
-  private Object mapObject(EntityProcessor entityProcessor, Map<String, String> jsonValueMap) throws IIdrApplicationException, FieldMayBeNotNullException{
+  private Object mapObject(EntityProcessor entityProcessor, JSONObject jsonObject) throws IIdrApplicationException, FieldMayBeNotNullException{
     final Object entityObject = entityProcessor.getEntityClassInstance();
     for (FieldProcessor fieldProcessor : entityProcessor.getFieldProcessorList()) {
       if(fieldProcessor.isCustomEntity){
-        fieldProcessor.processCustomField(entityObject, mapObject(fieldProcessor.entityProcessor, jsonValueMap));
+        fieldProcessor.processCustomField(entityObject, mapObject(fieldProcessor.entityProcessor, jsonObject));
         continue;
       }
-      final String iidrValue = tryFindIIdrValue(fieldProcessor.fieldNames, jsonValueMap);
+      final String iidrValue = tryFindIIdrValue(fieldProcessor.fieldNames, jsonObject);
       if(isNull(iidrValue) && !fieldProcessor.mayBeNull) {
         throw new FieldMayBeNotNullException(format("Field <%s> of <%s> was not found or its value is null in the event", fieldProcessor.getNativeFieldName(), entityObject.getClass().getCanonicalName()));
       }else if(nonNull(iidrValue)){
@@ -152,9 +153,9 @@ public class IIdrApplication {
     return consumer;
   }
 
-  private static String tryFindIIdrValue(Set<String> fieldNames, Map<String, String> jsonValueMap) {
+  private static String tryFindIIdrValue(Set<String> fieldNames, JSONObject jsonObject) {
     for (String fieldName : fieldNames) {
-      final String value = jsonValueMap.get(fieldName);
+      final String value = (String) jsonObject.get(fieldName);
       if(nonNull(value))
         return value;
     }
