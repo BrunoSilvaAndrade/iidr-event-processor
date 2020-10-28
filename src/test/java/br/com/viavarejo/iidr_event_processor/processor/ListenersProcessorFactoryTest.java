@@ -39,7 +39,7 @@ public class ListenersProcessorFactoryTest {
     }
 
     @Test
-    public  void testEntityWithUnsupportedTypes() throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException, UnsupportedTypeException, IIdrApplicationException {
+    public  void testEntityWithCustomTypes() throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException, UnsupportedTypeException, IIdrApplicationException {
         final List<Listener> listenerList = ListenersProcessorFactory.getListeners(new ControllerToTestEntityWithCustomTypes());
         boolean isCustomEntity = false;
         Object entityObject = null;

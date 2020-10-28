@@ -39,7 +39,8 @@ public class FieldProcessorTest {
 
     @Test
     public void testFieldProcessorParsers(){
-        listenerList.forEach(listener ->{
+        RightEntityImplementation rightEntityImplementation = null;
+        for (Listener listener : listenerList) {
             try {
                 Object entityObject = listener.entityProcessor.getEntityClassInstance();
                 listener.entityProcessor.getFieldProcessorList().forEach(fieldProcessor ->
@@ -50,22 +51,24 @@ public class FieldProcessorTest {
                             fail("Any exception may be not raised in parser");
                         }
                     }));
-                RightEntityImplementation rightEntityImplementation = (RightEntityImplementation) entityObject;
-                assertEquals(STRING_FIELD_VALUE, rightEntityImplementation.string);
-                assertEquals(1000000, rightEntityImplementation._long);
-                assertEquals(10, rightEntityImplementation._int);
-                assertEquals(1.0, rightEntityImplementation._float,0);
-                assertEquals(1.0, rightEntityImplementation._double, 0);
-                assertTrue(rightEntityImplementation._boolean);
-                assertNotNull(rightEntityImplementation.date);
-                assertNotNull(rightEntityImplementation.sqlDate);
-                assertNotNull(rightEntityImplementation.time);
-                assertNotNull(rightEntityImplementation.timestamp);
-                assertEquals(RightEntityImplementation.SomeEnum.A, rightEntityImplementation.someEnum);
+                rightEntityImplementation = (RightEntityImplementation) entityObject;
             } catch (IIdrApplicationException e) {
                 fail("Any excpetion may be not raised at this point");
             }
-        });
+        }
+
+        assertNotNull(rightEntityImplementation);
+        assertEquals(STRING_FIELD_VALUE, rightEntityImplementation.string);
+        assertEquals(1000000, rightEntityImplementation._long);
+        assertEquals(10, rightEntityImplementation._int);
+        assertEquals(1.0, rightEntityImplementation._float,0);
+        assertEquals(1.0, rightEntityImplementation._double, 0);
+        assertTrue(rightEntityImplementation._boolean);
+        assertNotNull(rightEntityImplementation.date);
+        assertNotNull(rightEntityImplementation.sqlDate);
+        assertNotNull(rightEntityImplementation.time);
+        assertNotNull(rightEntityImplementation.timestamp);
+        assertEquals(RightEntityImplementation.SomeEnum.A, rightEntityImplementation.someEnum);
     }
 
 }
