@@ -37,7 +37,8 @@ public class ListenersProcessorFactory {
 
   private static Set<Method> getListenersFromControllerClass(Class<?> listenerControllerClass) {
     final Set<Method> listeners = new HashSet<>();
-    for (Method method : listenerControllerClass.getMethods()) {
+    for (Method method : listenerControllerClass.getDeclaredMethods()) {
+      method.setAccessible(true);
       if(method.isAnnotationPresent(KafkaListerner.class))
         listeners.add(method);
     }

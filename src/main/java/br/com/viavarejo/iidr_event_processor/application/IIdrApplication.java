@@ -164,7 +164,9 @@ public class IIdrApplication {
 
   public void close() {
     shutdownHandled = true;
-    executors.shutdown();
+    if(nonNull(executors)) {
+      executors.shutdown();
+    }
   }
 
   public boolean terminatedWithError(){

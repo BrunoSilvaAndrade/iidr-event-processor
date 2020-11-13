@@ -24,7 +24,7 @@
         <dependency>
             <groupId>br.com.viavarejo</groupId>
             <artifactId>iidr-event-processor</artifactId>
-            <version>1.2.5</version>
+            <version>1.3.0</version>
         </dependency>
     </dependencies>
 </project>
