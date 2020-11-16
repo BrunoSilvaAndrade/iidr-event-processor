@@ -4,6 +4,7 @@ import br.com.viavarejo.iidr_event_processor.annotations.Alias;
 import br.com.viavarejo.iidr_event_processor.annotations.Ignore;
 import br.com.viavarejo.iidr_event_processor.annotations.Pattern;
 
+import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -30,6 +31,8 @@ public class RightEntityImplementation {
     public double _double;
 
     public boolean _boolean;
+
+    public BigDecimal _bigDecimal;
 
     @Pattern("yyyy-MM-dd")
     public Date date;

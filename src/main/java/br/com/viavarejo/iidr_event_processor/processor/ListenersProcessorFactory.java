@@ -7,6 +7,7 @@ import br.com.viavarejo.iidr_event_processor.exceptions.ListenerWrongImplemetati
 import br.com.viavarejo.iidr_event_processor.exceptions.UnsupportedTypeException;
 
 import java.lang.reflect.*;
+import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -142,6 +143,10 @@ public class ListenersProcessorFactory {
       return BOOLEAN;
     }
 
+    if(BigDecimal.class.equals(type)) {
+      return (o,f,v) -> f.set(o, new BigDecimal(v));
+    }
+
     if(Date.class.equals(type)) {
       final String pattern = getPattern(field);
       return (o,f,v) -> f.set(o, Date.from(LocalDate.parse(v, DateTimeFormatter.ofPattern(pattern)).atStartOfDay(ZoneId.systemDefault()).toInstant()));
@@ -160,6 +165,16 @@ public class ListenersProcessorFactory {
     if(Timestamp.class.equals(type)) {
       final String pattern = getPattern(field);
       return (o,f,v) -> f.set(o, Timestamp.valueOf(LocalDateTime.parse(v, DateTimeFormatter.ofPattern(pattern))));
+    }
+
+    if(LocalDate.class.equals(type)) {
+      final String pattern = getPattern(field);
+      return (o,f,v) -> f.set(o, LocalDate.parse(v, DateTimeFormatter.ofPattern(pattern)));
+    }
+
+    if(LocalDateTime.class.equals(type)){
+      final String pattern = getPattern(field);
+      return (o,f,v) -> f.set(o, LocalDateTime.parse(v, DateTimeFormatter.ofPattern(pattern)));
     }
 
     if(type.isEnum()) {

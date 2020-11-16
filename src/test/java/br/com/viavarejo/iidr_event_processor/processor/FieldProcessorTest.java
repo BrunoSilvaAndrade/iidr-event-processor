@@ -8,6 +8,8 @@ import br.com.viavarejo.iidr_event_processor.processor.scenarios.RightEntityImpl
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +31,19 @@ public class FieldProcessorTest {
         eventMapSimulation.put("_float", "1.0");
         eventMapSimulation.put("_double", "1.0");
         eventMapSimulation.put("_boolean", "true");
+        eventMapSimulation.put("_bigDecimal", "1.0");
         eventMapSimulation.put("date", "2020-10-09");
         eventMapSimulation.put("sqlDate", "2020-10-09");
         eventMapSimulation.put("time", "20:10:09");
         eventMapSimulation.put("timestamp", "2020-10-09T20:10:09.123456000000");
+        eventMapSimulation.put("localDate", "2020-10-09");
+        eventMapSimulation.put("localDateTime", "2020-10-09T20:10:09.123456000000");
         eventMapSimulation.put("someEnum", "A");
     }
 
 
     @Test
-    public void testFieldProcessorParsers(){
+    public void testFieldProcessorParsers() {
         RightEntityImplementation rightEntityImplementation = null;
         for (Listener listener : listenerList) {
             try {
@@ -63,6 +68,7 @@ public class FieldProcessorTest {
         assertEquals(10, rightEntityImplementation._int);
         assertEquals(1.0, rightEntityImplementation._float,0);
         assertEquals(1.0, rightEntityImplementation._double, 0);
+        assertEquals(BigDecimal.valueOf(1.0), rightEntityImplementation._bigDecimal);
         assertTrue(rightEntityImplementation._boolean);
         assertNotNull(rightEntityImplementation.date);
         assertNotNull(rightEntityImplementation.sqlDate);
