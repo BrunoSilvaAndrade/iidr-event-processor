@@ -132,7 +132,7 @@ public class IIdrApplication {
 
   private Object mapObject(EntityProcessor entityProcessor, JSONObject jsonObject) throws IIdrApplicationException, FieldMayBeNotNullException{
     final Object entityObject = entityProcessor.getEntityClassInstance();
-    for (Processor processor : entityProcessor.getFieldProcessorList()) {
+    for (Processor processor : entityProcessor.getProcessorList()) {
       if(processor.isCustomEntity){
         processor.processCustomField(entityObject, mapObject(processor.entityProcessor, jsonObject));
         continue;

@@ -44,7 +44,7 @@ public class ListenersProcessorFactoryTest {
         boolean isCustomEntity = false;
         Object entityObject = null;
         for (Listener listener : listenerList) {
-            for (Processor processor : listener.entityProcessor.getFieldProcessorList()) {
+            for (Processor processor : listener.entityProcessor.getProcessorList()) {
                 isCustomEntity = processor.isCustomEntity;
                 entityObject = processor.entityProcessor.getEntityClassInstance();
             }

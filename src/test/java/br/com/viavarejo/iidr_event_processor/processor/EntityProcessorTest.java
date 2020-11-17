@@ -22,7 +22,7 @@ public class EntityProcessorTest {
 
     @Test
     public void testIfFieldProcessorListIsNotEmpty(){
-        listenerList.forEach(listener -> assertFalse(listener.entityProcessor.getFieldProcessorList().isEmpty()));
+        listenerList.forEach(listener -> assertFalse(listener.entityProcessor.getProcessorList().isEmpty()));
     }
 
     @Test

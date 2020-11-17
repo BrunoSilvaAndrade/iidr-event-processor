@@ -6,11 +6,11 @@ import java.util.List;
 
 public class EntityProcessor {
   private final Class<?> entityClass;
-  private final List<Processor> fieldProcessorList;
+  private final List<Processor> processorList;
 
-  public EntityProcessor(Class<?> entityClass, List<Processor> fieldProcessorList) {
+  public EntityProcessor(Class<?> entityClass, List<Processor> processorList) {
     this.entityClass = entityClass;
-    this.fieldProcessorList = fieldProcessorList;
+    this.processorList = processorList;
   }
 
   public Object getEntityClassInstance() throws IIdrApplicationException {
@@ -21,7 +21,7 @@ public class EntityProcessor {
     }
   }
 
-  public List<Processor> getFieldProcessorList() {
-    return fieldProcessorList;
+  public List<Processor> getProcessorList() {
+    return processorList;
   }
 }

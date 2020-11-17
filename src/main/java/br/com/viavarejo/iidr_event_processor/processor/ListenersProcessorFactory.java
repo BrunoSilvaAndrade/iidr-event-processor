@@ -43,8 +43,8 @@ public class ListenersProcessorFactory {
       final Type type = ((ParameterizedType)genericParameterTypes[0]).getActualTypeArguments()[0];
 
       Class<?> entityClass = Class.forName(type.getTypeName());
-      final List<Processor> fieldProcessorList = mountProcessorList(entityClass);
-      listenerList.add(new Listener(method, new EntityProcessor(entityClass, fieldProcessorList)));
+      final List<Processor> processorList = mountProcessorList(entityClass);
+      listenerList.add(new Listener(method, new EntityProcessor(entityClass, processorList)));
     }
     return listenerList;
   }

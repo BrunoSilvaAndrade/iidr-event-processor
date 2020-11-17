@@ -44,15 +44,15 @@ public class ProcessorTest {
 
 
     @Test
-    public void testFieldProcessorParsers() {
+    public void testProcessors() {
         RightEntityImplementation rightEntityImplementation = null;
         for (Listener listener : listenerList) {
             try {
                 Object entityObject = listener.entityProcessor.getEntityClassInstance();
-                listener.entityProcessor.getFieldProcessorList().forEach(fieldProcessor ->
-                    fieldProcessor.fieldNames.forEach(fieldName -> {
+                listener.entityProcessor.getProcessorList().forEach(processor ->
+                    processor.fieldNames.forEach(fieldName -> {
                         try {
-                            fieldProcessor.process(entityObject, eventMapSimulation.get(fieldName));
+                            processor.process(entityObject, eventMapSimulation.get(fieldName));
                         } catch (Exception e) {
                             e.printStackTrace();
                             fail("Any exception may be not raised in parser");
