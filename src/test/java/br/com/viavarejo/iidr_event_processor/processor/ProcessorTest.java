@@ -9,14 +9,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
 
-public class FieldProcessorTest {
+public class ProcessorTest {
     private static final String STRING_FIELD_VALUE = "valor1";
     Map<String, String> eventMapSimulation;
     List<Listener> listenerList;
@@ -28,6 +27,7 @@ public class FieldProcessorTest {
         eventMapSimulation.put("string1", STRING_FIELD_VALUE);
         eventMapSimulation.put("_long", "1000000");
         eventMapSimulation.put("_int", "10");
+        eventMapSimulation.put("methodTest", "10");
         eventMapSimulation.put("_float", "1.0");
         eventMapSimulation.put("_double", "1.0");
         eventMapSimulation.put("_boolean", "true");
@@ -35,6 +35,7 @@ public class FieldProcessorTest {
         eventMapSimulation.put("date", "2020-10-09");
         eventMapSimulation.put("sqlDate", "2020-10-09");
         eventMapSimulation.put("time", "20:10:09");
+        eventMapSimulation.put("methodTestTime", "20:10:09");
         eventMapSimulation.put("timestamp", "2020-10-09T20:10:09.123456000000");
         eventMapSimulation.put("localDate", "2020-10-09");
         eventMapSimulation.put("localDateTime", "2020-10-09T20:10:09.123456000000");
@@ -51,13 +52,15 @@ public class FieldProcessorTest {
                 listener.entityProcessor.getFieldProcessorList().forEach(fieldProcessor ->
                     fieldProcessor.fieldNames.forEach(fieldName -> {
                         try {
-                            fieldProcessor.proccessField(entityObject, eventMapSimulation.get(fieldName));
+                            fieldProcessor.process(entityObject, eventMapSimulation.get(fieldName));
                         } catch (Exception e) {
+                            e.printStackTrace();
                             fail("Any exception may be not raised in parser");
                         }
                     }));
                 rightEntityImplementation = (RightEntityImplementation) entityObject;
             } catch (IIdrApplicationException e) {
+                e.printStackTrace();
                 fail("Any excpetion may be not raised at this point");
             }
         }
@@ -66,6 +69,7 @@ public class FieldProcessorTest {
         assertEquals(STRING_FIELD_VALUE, rightEntityImplementation.string);
         assertEquals(1000000, rightEntityImplementation._long);
         assertEquals(10, rightEntityImplementation._int);
+        assertEquals(10, rightEntityImplementation.methodTestInt);
         assertEquals(1.0, rightEntityImplementation._float,0);
         assertEquals(1.0, rightEntityImplementation._double, 0);
         assertEquals(BigDecimal.valueOf(1.0), rightEntityImplementation._bigDecimal);
@@ -73,6 +77,7 @@ public class FieldProcessorTest {
         assertNotNull(rightEntityImplementation.date);
         assertNotNull(rightEntityImplementation.sqlDate);
         assertNotNull(rightEntityImplementation.time);
+        assertNotNull(rightEntityImplementation.methodTestTime);
         assertNotNull(rightEntityImplementation.timestamp);
         assertEquals(RightEntityImplementation.SomeEnum.A, rightEntityImplementation.someEnum);
     }

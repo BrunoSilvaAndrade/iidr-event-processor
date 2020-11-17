@@ -6,9 +6,9 @@ import java.util.List;
 
 public class EntityProcessor {
   private final Class<?> entityClass;
-  private final List<FieldProcessor> fieldProcessorList;
+  private final List<Processor> fieldProcessorList;
 
-  public EntityProcessor(Class<?> entityClass, List<FieldProcessor> fieldProcessorList) {
+  public EntityProcessor(Class<?> entityClass, List<Processor> fieldProcessorList) {
     this.entityClass = entityClass;
     this.fieldProcessorList = fieldProcessorList;
   }
@@ -21,7 +21,7 @@ public class EntityProcessor {
     }
   }
 
-  public List<FieldProcessor> getFieldProcessorList() {
+  public List<Processor> getFieldProcessorList() {
     return fieldProcessorList;
   }
 }

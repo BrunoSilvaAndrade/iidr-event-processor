@@ -1,9 +1,6 @@
 package br.com.viavarejo.iidr_event_processor_example.model;
 
-import br.com.viavarejo.iidr_event_processor.annotations.Alias;
-import br.com.viavarejo.iidr_event_processor.annotations.Ignore;
-import br.com.viavarejo.iidr_event_processor.annotations.NonNull;
-import br.com.viavarejo.iidr_event_processor.annotations.Pattern;
+import br.com.viavarejo.iidr_event_processor.annotations.*;
 import br.com.viavarejo.iidr_event_processor.utils.IIdrEntity;
 
 import java.sql.Date;
@@ -20,31 +17,43 @@ import java.sql.Date;
 //We can model the entity with like that below
 public class Filial extends IIdrEntity {
 
-  @NonNull
-  @Alias("CD_EMPGCB")
+  @IIDRNonNull
+  @IIDRAlias("CD_EMPGCB")
   private Integer codigoEmpresa;
 
   //OR
 
-  @NonNull
+  @IIDRNonNull
   private Integer CD_EMPGCB;
 
-  @NonNull
-  @Alias("CD_FIL")
+  @IIDRNonNull
+  @IIDRAlias("CD_FIL")
   private Integer codigoFilial;
 
-  //Fields of type like Date,Time,Timestamp needs @Pattern Annotation with the pattern to parse the IIdr's values
-  @Alias("DT_FIL_ING")
-  @Pattern("yyyy-MM-dd")
+  //Fields of type like Date,Time,Timestamp needs @IIDRPattern Annotation with the pattern to parse the IIdr's values
+  @IIDRAlias("DT_FIL_ING")
+  @IIDRPattern("yyyy-MM-dd")
   private Date dataInauguracao;
 
-  @NonNull
-  @Alias("NM_FIL")
+  @IIDRNonNull
+  @IIDRAlias("NM_FIL")
   private String nomeFilial;
+
+  @IIDRIgnore
+  private String nomeFilial2;
+
+  @IIDRSetter("NM_FIL")
+  public void setNomeFilial2(String nomeFilial2) {
+    this.nomeFilial2 = nomeFilial2 + " nomeFilial2";
+  }
+
+  public String getNomeFilial2() {
+    return nomeFilial2;
+  }
 
   //The entity may contain a field which does not come from IIdr
   //In this case you can ignore this field
-  @Ignore
+  @IIDRIgnore
   private String ignoredField;
 
   public Date getDataInauguracao() {

@@ -1,19 +1,19 @@
 package br.com.viavarejo.iidr_event_processor.utils;
 
-import br.com.viavarejo.iidr_event_processor.annotations.Alias;
-import br.com.viavarejo.iidr_event_processor.annotations.NonNull;
-import br.com.viavarejo.iidr_event_processor.annotations.Pattern;
+import br.com.viavarejo.iidr_event_processor.annotations.IIDRAlias;
+import br.com.viavarejo.iidr_event_processor.annotations.IIDRNonNull;
+import br.com.viavarejo.iidr_event_processor.annotations.IIDRPattern;
 
 import java.sql.Timestamp;
 
 public abstract class IIdrEntity {
-  @NonNull
-  @Alias("AUD_ENTTYP")
+  @IIDRNonNull
+  @IIDRAlias("AUD_ENTTYP")
   private IIdrOperationEnum operation;
 
-  @NonNull
-  @Alias("AUD_APPLY_TIMESTAMP")
-  @Pattern("yyyy-MM-dd-HH.mm.ss.SSSSSS")
+  @IIDRNonNull
+  @IIDRAlias("AUD_APPLY_TIMESTAMP")
+  @IIDRPattern("yyyy-MM-dd-HH.mm.ss.SSSSSS")
   private Timestamp  operationTimestamp;
 
   public IIdrOperationEnum getOperation() {

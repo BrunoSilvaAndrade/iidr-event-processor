@@ -1,8 +1,9 @@
 package br.com.viavarejo.iidr_event_processor.processor.scenarios;
 
-import br.com.viavarejo.iidr_event_processor.annotations.Alias;
-import br.com.viavarejo.iidr_event_processor.annotations.Ignore;
-import br.com.viavarejo.iidr_event_processor.annotations.Pattern;
+import br.com.viavarejo.iidr_event_processor.annotations.IIDRAlias;
+import br.com.viavarejo.iidr_event_processor.annotations.IIDRIgnore;
+import br.com.viavarejo.iidr_event_processor.annotations.IIDRPattern;
+import br.com.viavarejo.iidr_event_processor.annotations.IIDRSetter;
 
 import java.math.BigDecimal;
 import java.sql.Time;
@@ -16,10 +17,10 @@ public class RightEntityImplementation {
      }
 
     //Testing if Ignore field will work when an unsupported is found
-    @Ignore
+    @IIDRIgnore
     EntityWithTimeFieldsWithoutFormatAnnotation entityWithTimeFieldsWithoutFormatAnnotation;
 
-    @Alias("string1")
+    @IIDRAlias("string1")
     public String string;
 
     public long _long;
@@ -34,17 +35,34 @@ public class RightEntityImplementation {
 
     public BigDecimal _bigDecimal;
 
-    @Pattern("yyyy-MM-dd")
+    @IIDRPattern("yyyy-MM-dd")
     public Date date;
 
-    @Pattern("yyyy-MM-dd")
+    @IIDRPattern("yyyy-MM-dd")
     public java.sql.Date sqlDate;
 
-    @Pattern("HH:mm:ss")
+    @IIDRPattern("HH:mm:ss")
     public Time time;
 
-    @Pattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'000000'")
+    @IIDRPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'000000'")
     public Timestamp timestamp;
 
     public SomeEnum someEnum;
+
+    @IIDRIgnore
+    public int methodTestInt;
+
+    @IIDRIgnore
+    public Time methodTestTime;
+
+    @IIDRSetter("methodTest")
+    private void setMethodTestInt(int methodTestInt) {
+        this.methodTestInt = methodTestInt;
+    }
+
+    @IIDRSetter("methodTestTime")
+    private void setMethodTestTime(@IIDRPattern("HH:mm:ss") Time methodTestTime) {
+        this.methodTestTime = methodTestTime;
+    }
+
 }

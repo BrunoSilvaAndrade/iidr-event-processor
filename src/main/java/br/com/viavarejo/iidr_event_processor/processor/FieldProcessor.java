@@ -7,25 +7,16 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class FieldProcessor {
+public class FieldProcessor extends Processor {
   final public Field field;
-  final public boolean mayBeNull;
-  final public boolean isCustomEntity;
-  final public Set<String> fieldNames;
-  final public EntityProcessor entityProcessor;
-  final public FieldParserAndSetter fieldParserAndSetter;
 
-  FieldProcessor(Field field, FieldParserAndSetter fieldParserAndSetter, boolean mayBeNull, Set<String> fieldNames, boolean isCustomEntity, EntityProcessor entityProcessor) {
+  FieldProcessor(Field field, FieldParser fieldParser, boolean mayBeNull, Set<String> fieldNames, boolean isCustomEntity, EntityProcessor entityProcessor) {
+    super(fieldParser, mayBeNull, fieldNames, isCustomEntity, entityProcessor);
     this.field = field;
-    this.fieldParserAndSetter = fieldParserAndSetter;
-    this.mayBeNull = mayBeNull;
-    this.fieldNames = fieldNames;
-    this.isCustomEntity = isCustomEntity;
-    this.entityProcessor = entityProcessor;
   }
 
-  FieldProcessor(Field field, FieldParserAndSetter fieldParserAndSetter, boolean mayBeNull, Set<String> fieldNames) {
-    this(field, fieldParserAndSetter, mayBeNull, fieldNames, false, null);
+  FieldProcessor(Field field, FieldParser fieldParser, boolean mayBeNull, Set<String> fieldNames) {
+    this(field, fieldParser, mayBeNull, fieldNames, false, null);
   }
 
   FieldProcessor(Field field, EntityProcessor entityProcessor){
@@ -41,11 +32,12 @@ public class FieldProcessor {
 
   }
 
-  public void proccessField(Object entityObject, String iidrValue) throws IIdrApplicationException {
+  @Override
+  public void process(Object entityObject, String iidrValue) throws IIdrApplicationException {
     try{
-      this.fieldParserAndSetter.parseAndSet(entityObject, field, iidrValue);
+      field.set(entityObject, fieldParser.parse(iidrValue));
     }catch (Exception e){
-      throw new IIdrApplicationException(format("Fail to parse iidrValue \"%s\" to set in field <%s> of class %s", iidrValue, getNativeFieldName(), entityObject.getClass().getCanonicalName()), e);
+      throw new IIdrApplicationException(format("Fail to parse iidrValue <%s> of field <%s> of class %s", iidrValue, getNativeFieldName(), entityObject.getClass().getCanonicalName()), e);
     }
   }
 
