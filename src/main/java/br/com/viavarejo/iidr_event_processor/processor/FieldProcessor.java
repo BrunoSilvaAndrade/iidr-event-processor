@@ -10,26 +10,23 @@ import static java.lang.String.format;
 public class FieldProcessor extends Processor {
   final public Field field;
 
-  FieldProcessor(Field field, FieldParser fieldParser, boolean mayBeNull, Set<String> fieldNames, boolean isCustomEntity, EntityProcessor entityProcessor) {
-    super(fieldParser, mayBeNull, fieldNames, isCustomEntity, entityProcessor);
+  FieldProcessor(Field field, FieldParser fieldParser, boolean mayBeNull, Set<String> fieldNames) {
+    super(fieldParser, mayBeNull, fieldNames, false, null);
     this.field = field;
   }
 
-  FieldProcessor(Field field, FieldParser fieldParser, boolean mayBeNull, Set<String> fieldNames) {
-    this(field, fieldParser, mayBeNull, fieldNames, false, null);
-  }
-
   FieldProcessor(Field field, EntityProcessor entityProcessor){
-    this(field, null, false, null, true, entityProcessor);
+    super(null, false, null, true, entityProcessor);
+    this.field = field;
   }
 
+  @Override
   public void processCustomField(Object entityObject, Object customEntityObject) throws IIdrApplicationException {
     try {
       field.set(entityObject, customEntityObject);
     } catch (IllegalAccessException ie) {
       throw new IIdrApplicationException(ie);
     }
-
   }
 
   @Override
@@ -37,11 +34,7 @@ public class FieldProcessor extends Processor {
     try{
       field.set(entityObject, fieldParser.parse(iidrValue));
     }catch (Exception e){
-      throw new IIdrApplicationException(format("Fail to parse iidrValue <%s> of field <%s> of class %s", iidrValue, getNativeFieldName(), entityObject.getClass().getCanonicalName()), e);
+      throw new IIdrApplicationException(format("Fail to parse iidrValue <%s> of field <%s> of class %s", iidrValue, field.getName(), entityObject.getClass().getCanonicalName()), e);
     }
-  }
-
-  public String getNativeFieldName() {
-    return field.getName();
   }
 }

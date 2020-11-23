@@ -100,6 +100,9 @@ public class IIdrApplication {
                 try {
                   final JSONObject jsonObject = (JSONObject) jsonParser.parse(record.value());
                   final Object entityObject = mapObject(entityProcessor, jsonObject);
+                  if(!jsonObject.isEmpty() && entityProcessor.hasNonMappedFieldProcessor()) {
+                    entityProcessor.getNonMappedFieldProcessor().process(entityObject, jsonObject);
+                  }
                   entityObjectList.add(entityObject);
                 }catch (IIdrApplicationException | FieldMayBeNotNullException e) {
                   callback.call(e,record);
@@ -158,7 +161,7 @@ public class IIdrApplication {
 
   private static String tryFindIIdrValue(Set<String> fieldNames, JSONObject jsonObject) {
     for (String fieldName : fieldNames) {
-      final String value = (String) jsonObject.get(fieldName);
+      final String value = (String) jsonObject.remove(fieldName);
       if(nonNull(value))
         return value;
     }

@@ -4,17 +4,13 @@ import br.com.viavarejo.iidr_event_processor.annotations.IIDRAlias;
 import br.com.viavarejo.iidr_event_processor.annotations.IIDRIgnore;
 import br.com.viavarejo.iidr_event_processor.annotations.IIDRPattern;
 import br.com.viavarejo.iidr_event_processor.annotations.IIDRSetter;
+import br.com.viavarejo.iidr_event_processor.utils.IIdrEntity;
 
 import java.math.BigDecimal;
 import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.Date;
 
-public class RightEntityImplementation {
-     //Enum to test the function enum parser;
-    public enum SomeEnum{
-        A;
-     }
+public class RightEntityImplementation extends IIdrEntity {
 
     //Testing if Ignore field will work when an unsupported is found
     @IIDRIgnore
@@ -43,11 +39,6 @@ public class RightEntityImplementation {
 
     @IIDRPattern("HH:mm:ss")
     public Time time;
-
-    @IIDRPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'000000'")
-    public Timestamp timestamp;
-
-    public SomeEnum someEnum;
 
     @IIDRIgnore
     public int methodTestInt;

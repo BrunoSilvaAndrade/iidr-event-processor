@@ -44,9 +44,23 @@ public class ListenersProcessorFactory {
 
       Class<?> entityClass = Class.forName(type.getTypeName());
       final List<Processor> processorList = mountProcessorList(entityClass);
-      listenerList.add(new Listener(method, new EntityProcessor(entityClass, processorList)));
+      listenerList.add(new Listener(method, new EntityProcessor(entityClass, processorList, tryGetNonMappedFieldProcessor(entityClass))));
     }
     return listenerList;
+  }
+
+  private static NonMappedFieldProcessor tryGetNonMappedFieldProcessor(Class<?> entityClass) throws EntityWrongImplementationException {
+    final String TYPE_EXPECTED = "java.util.Map<java.lang.String, java.lang.String>";
+    for (Field field : getAllEntityFieldsHierarchy(entityClass)) {
+      if(field.isAnnotationPresent(NonMappedFields.class)){
+        field.setAccessible(true);
+        if(TYPE_EXPECTED.equals(field.getGenericType().getTypeName())){
+          return new NonMappedFieldProcessor(field);
+        }
+        throw new EntityWrongImplementationException("Field NonMappedFields must be a Map<String, String> type");
+      }
+    }
+    return null;
   }
 
   private static List<Processor> mountProcessorList(Class<?> entityClass) throws EntityWrongImplementationException  {
@@ -85,7 +99,7 @@ public class ListenersProcessorFactory {
   }
 
   private static boolean isNotIgnoredField(Field declaredField) {
-    return !declaredField.isAnnotationPresent(IIDRIgnore.class);
+    return !declaredField.isAnnotationPresent(IIDRIgnore.class) && !declaredField.isAnnotationPresent(NonMappedFields.class);
   }
 
   private static Set<String> getAllFieldPossibleNames(Field declaredField) {

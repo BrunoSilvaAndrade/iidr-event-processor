@@ -4,13 +4,21 @@ import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException
 
 import java.util.List;
 
+import static java.util.Objects.nonNull;
+
 public class EntityProcessor {
   private final Class<?> entityClass;
   private final List<Processor> processorList;
+  private final NonMappedFieldProcessor nonMappedFieldProcessor;
 
-  public EntityProcessor(Class<?> entityClass, List<Processor> processorList) {
+  public EntityProcessor(Class<?> entityClass, List<Processor> processorList, NonMappedFieldProcessor nonMappedFieldProcessor) {
     this.entityClass = entityClass;
     this.processorList = processorList;
+    this.nonMappedFieldProcessor = nonMappedFieldProcessor;
+  }
+
+  public EntityProcessor(Class<?> entityClass, List<Processor> processorList) {
+    this(entityClass, processorList, null);
   }
 
   public Object getEntityClassInstance() throws IIdrApplicationException {
@@ -23,5 +31,13 @@ public class EntityProcessor {
 
   public List<Processor> getProcessorList() {
     return processorList;
+  }
+
+  public boolean hasNonMappedFieldProcessor(){
+    return nonNull(nonMappedFieldProcessor);
+  }
+
+  public NonMappedFieldProcessor getNonMappedFieldProcessor() {
+    return nonMappedFieldProcessor;
   }
 }

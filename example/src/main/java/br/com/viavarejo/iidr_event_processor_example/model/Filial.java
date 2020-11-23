@@ -17,14 +17,8 @@ import java.sql.Date;
 //We can model the entity with like that below
 public class Filial extends IIdrEntity {
 
-  @IIDRNonNull
-  @IIDRAlias("CD_EMPGCB")
-  private Integer codigoEmpresa;
-
-  //OR
-
-  @IIDRNonNull
-  private Integer CD_EMPGCB;
+  //You can use others custom objects into an entity
+  private Empresa empresa;
 
   @IIDRNonNull
   @IIDRAlias("CD_FIL")
@@ -59,10 +53,6 @@ public class Filial extends IIdrEntity {
   public Date getDataInauguracao() {
     return dataInauguracao;
   }
-
-
-  //You can use others custom objects into an entity
-  private Empresa empresa;
 
   public Empresa getEmpresa() {
     return empresa;

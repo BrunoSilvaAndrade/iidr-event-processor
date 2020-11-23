@@ -16,6 +16,9 @@ public class EventListenersController {
       System.out.println(filial.getDataInauguracao());
       System.out.println("Empresa: "+filial.getEmpresa().getCodigo());
       System.out.println("Test method nomeFilial2 : " + filial.getNomeFilial2());
+      if(filial.hasNonMappedFields()) {
+        System.out.println("NonMappedFields : " + filial.getNonMappedFields().toString());
+      }
     });
     //When any event is produced of any topic of that topic list in annotation this method will be invoked with a list of your entity with type parsed already
     //now you can do anything with your entityList

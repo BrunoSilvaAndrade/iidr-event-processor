@@ -36,12 +36,11 @@ public class ProcessorTest {
         eventMapSimulation.put("sqlDate", "2020-10-09");
         eventMapSimulation.put("time", "20:10:09");
         eventMapSimulation.put("methodTestTime", "20:10:09");
-        eventMapSimulation.put("timestamp", "2020-10-09T20:10:09.123456000000");
         eventMapSimulation.put("localDate", "2020-10-09");
         eventMapSimulation.put("localDateTime", "2020-10-09T20:10:09.123456000000");
-        eventMapSimulation.put("someEnum", "A");
+        eventMapSimulation.put("AUD_ENTTYP", "U");
+        eventMapSimulation.put("AUD_APPLY_TIMESTAMP", "2020-10-09-20.10.09.123456");
     }
-
 
     @Test
     public void testProcessors() {
@@ -52,7 +51,9 @@ public class ProcessorTest {
                 listener.entityProcessor.getProcessorList().forEach(processor ->
                     processor.fieldNames.forEach(fieldName -> {
                         try {
-                            processor.process(entityObject, eventMapSimulation.get(fieldName));
+                            if(eventMapSimulation.containsKey(fieldName)){
+                                processor.process(entityObject, eventMapSimulation.get(fieldName));
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                             fail("Any exception may be not raised in parser");
@@ -78,8 +79,6 @@ public class ProcessorTest {
         assertNotNull(rightEntityImplementation.sqlDate);
         assertNotNull(rightEntityImplementation.time);
         assertNotNull(rightEntityImplementation.methodTestTime);
-        assertNotNull(rightEntityImplementation.timestamp);
-        assertEquals(RightEntityImplementation.SomeEnum.A, rightEntityImplementation.someEnum);
     }
 
 }
