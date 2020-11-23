@@ -16,6 +16,7 @@ public class EventListenersController {
       System.out.println(filial.getDataInauguracao());
       System.out.println("Empresa: "+filial.getEmpresa().getCodigo());
       System.out.println("Test method nomeFilial2 : " + filial.getNomeFilial2());
+      System.out.println("Has NonMappedFields : " + filial.hasNonMappedFields());
       if(filial.hasNonMappedFields()) {
         System.out.println("NonMappedFields : " + filial.getNonMappedFields().toString());
       }
