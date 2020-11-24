@@ -50,10 +50,10 @@ public class EntityProcessor {
         continue;
       }
       final String iidrValue = tryFindIIdrValue(processor.fieldNames, jsonObject);
-      if(isNull(iidrValue) && !processor.mayBeNull) {
-        throw new FieldMayBeNotNullException(format("No one of these <%s> was found in IIDR value ", processor.fieldNames.toString()));
-      }else if(nonNull(iidrValue)){
+      if(nonNull(iidrValue)){
         processor.process(entityObject, iidrValue.trim());
+      }else if(!processor.mayBeNull){
+        throw new FieldMayBeNotNullException(format("No one of these <%s> was found in IIDR value ", processor.fieldNames.toString()));
       }
     }
     return entityObject;
