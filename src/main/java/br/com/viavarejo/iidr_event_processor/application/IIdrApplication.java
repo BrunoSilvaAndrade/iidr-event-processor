@@ -5,12 +5,9 @@ import br.com.viavarejo.iidr_event_processor.exceptions.*;
 import br.com.viavarejo.iidr_event_processor.processor.EntityProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.Listener;
 import br.com.viavarejo.iidr_event_processor.processor.ListenersProcessorFactory;
-import br.com.viavarejo.iidr_event_processor.processor.Processor;
+import br.com.viavarejo.iidr_event_processor.utils.ConsumerFactory;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -20,13 +17,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class IIdrApplication {
@@ -39,7 +32,7 @@ public class IIdrApplication {
   private final Object listenerControllerObject;
   private final int remainingRetries;
 
-  private boolean shutdownHandled = false;
+  private boolean shutdownRequested = false;
   private boolean hasError = false;
 
 
@@ -78,13 +71,13 @@ public class IIdrApplication {
           final Method method = listener.method;
           final JSONParser jsonParser = new JSONParser();
           final EntityProcessor entityProcessor = listener.entityProcessor;
-          final Consumer<String, String> consumer = getConsumer(method.getDeclaredAnnotation(KafkaListerner.class), kafkaConsumerProperties);
+          final Consumer<String, String> consumer = ConsumerFactory.getConsumer(method.getDeclaredAnnotation(KafkaListerner.class), kafkaConsumerProperties);
 
           List<ConsumerRecord<String, String>> records = new ArrayList<>();
           List<Object> entityObjectList = new ArrayList<>();
           int remainingRetries = this.remainingRetries;
 
-          while (!shutdownHandled) {
+          while (!shutdownRequested) {
             try {
               //If nonEmpty is because is a retry
               //If empty is because it was successful handled
@@ -99,10 +92,7 @@ public class IIdrApplication {
               for (ConsumerRecord<String, String> record : records) {
                 try {
                   final JSONObject jsonObject = (JSONObject) jsonParser.parse(record.value());
-                  final Object entityObject = mapObject(entityProcessor, jsonObject);
-                  if(!jsonObject.isEmpty() && entityProcessor.hasNonMappedFieldProcessor()) {
-                    entityProcessor.getNonMappedFieldProcessor().process(entityObject, jsonObject);
-                  }
+                  final Object entityObject = IIdrObjectMapper.mapObject(entityProcessor, jsonObject);
                   entityObjectList.add(entityObject);
                 }catch (IIdrApplicationException | FieldMayBeNotNullException e) {
                   callback.call(e,record);
@@ -115,7 +105,7 @@ public class IIdrApplication {
               e.printStackTrace();
               if (remainingRetries == 0) {
                 hasError = true;
-                shutdownHandled = true;
+                shutdownRequested = true;
               } else {
                 remainingRetries--;
               }
@@ -133,43 +123,8 @@ public class IIdrApplication {
     }
   }
 
-  private Object mapObject(EntityProcessor entityProcessor, JSONObject jsonObject) throws IIdrApplicationException, FieldMayBeNotNullException{
-    final Object entityObject = entityProcessor.getEntityClassInstance();
-    for (Processor processor : entityProcessor.getProcessorList()) {
-      if(processor.isCustomEntity){
-        processor.processCustomField(entityObject, mapObject(processor.entityProcessor, jsonObject));
-        continue;
-      }
-      final String iidrValue = tryFindIIdrValue(processor.fieldNames, jsonObject);
-      if(isNull(iidrValue) && !processor.mayBeNull) {
-        throw new FieldMayBeNotNullException(format("No one of these <%s> was found in IIDR value ", processor.fieldNames.toString()));
-      }else if(nonNull(iidrValue)){
-        processor.process(entityObject, iidrValue.trim());
-      }
-    }
-    return entityObject;
-  }
-
-  private static Consumer<String, String> getConsumer(KafkaListerner kafkaListerner, Properties consumerProps) {
-    final Properties props = new Properties();
-    props.putAll(consumerProps);
-    props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaListerner.id());
-    final Consumer<String, String> consumer = new KafkaConsumer<>(props, new StringDeserializer(), new StringDeserializer());
-    consumer.subscribe(asList(kafkaListerner.topics()));
-    return consumer;
-  }
-
-  private static String tryFindIIdrValue(Set<String> fieldNames, JSONObject jsonObject) {
-    for (String fieldName : fieldNames) {
-      final String value = (String) jsonObject.remove(fieldName);
-      if(nonNull(value))
-        return value;
-    }
-    return null;
-  }
-
   public void close() {
-    shutdownHandled = true;
+    shutdownRequested = true;
     if(nonNull(executors)) {
       executors.shutdown();
     }

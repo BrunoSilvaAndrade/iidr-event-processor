@@ -11,7 +11,8 @@ import java.sql.Date;
 //    "CD_EMPGCB": "21",
 //    "CD_FIL": "119",
 //    "DT_FIL_ING": "2017-02-17",
-//    "NM_FIL": "NOVA FRIBURGO 2 - RJ                              "
+//    "NM_FIL": "NOVA FRIBURGO 2 - RJ                              ",
+//    "NON_MAPPED_FIELD": "SOME_VALUE"
 //  }
 
 //We can model the entity with like that below
@@ -29,20 +30,16 @@ public class Filial extends IIdrEntity {
   @IIDRPattern("yyyy-MM-dd")
   private Date dataInauguracao;
 
-  @IIDRNonNull
-  @IIDRAlias("NM_FIL")
+  @IIDRIgnore
   private String nomeFilial;
 
-  @IIDRIgnore
-  private String nomeFilial2;
-
   @IIDRSetter("NM_FIL")
-  public void setNomeFilial2(String nomeFilial2) {
-    this.nomeFilial2 = nomeFilial2 + " nomeFilial2";
+  public void setNomeFilial(@IIDRNonNull String nomeFilial) {
+    this.nomeFilial = nomeFilial + " Using IIDRSetter";
   }
 
-  public String getNomeFilial2() {
-    return nomeFilial2;
+  public String getNomeFilial() {
+    return nomeFilial;
   }
 
   //The entity may contain a field which does not come from IIdr

@@ -16,23 +16,22 @@ public class ListenersProcessorFactory {
 
   public static List<Listener> getListeners(final Object listenerControllerObject) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
     final Class<?>  listenerControllerClass = listenerControllerObject.getClass();
-    final Set<Method> listeners = getListenersFromControllerClass(listenerControllerClass);
+    final Set<Method> listeners = getEligibleMethodListeners(listenerControllerClass);
     return getListenerList(listeners);
   }
 
-  private static Set<Method> getListenersFromControllerClass(Class<?> listenerControllerClass) {
+  private static Set<Method> getEligibleMethodListeners(Class<?> listenerControllerClass) {
     final Set<Method> listeners = new HashSet<>();
     for (Method method : listenerControllerClass.getDeclaredMethods()) {
       method.setAccessible(true);
       if(method.isAnnotationPresent(KafkaListerner.class))
         listeners.add(method);
     }
-    return listeners;
+    return Collections.unmodifiableSet(listeners);
   }
 
   private static List<Listener> getListenerList(Set<Method> methodSet) throws  EntityWrongImplementationException, ListenerWrongImplemetationException, ClassNotFoundException {
     final List<Listener> listenerList = new ArrayList<>();
-
     for (Method method : methodSet) {
       final Type[] genericParameterTypes = method.getGenericParameterTypes();
       final Parameter[] parameters = method.getParameters();
@@ -43,10 +42,9 @@ public class ListenersProcessorFactory {
       final Type type = ((ParameterizedType)genericParameterTypes[0]).getActualTypeArguments()[0];
 
       Class<?> entityClass = Class.forName(type.getTypeName());
-      final List<Processor> processorList = mountProcessorList(entityClass);
-      listenerList.add(new Listener(method, new EntityProcessor(entityClass, processorList, tryGetNonMappedFieldProcessor(entityClass))));
+      listenerList.add(new Listener(method, new EntityProcessor(entityClass, mountProcessorList(entityClass), tryGetNonMappedFieldProcessor(entityClass))));
     }
-    return listenerList;
+    return Collections.unmodifiableList(listenerList);
   }
 
   private static NonMappedFieldProcessor tryGetNonMappedFieldProcessor(Class<?> entityClass) throws EntityWrongImplementationException {
@@ -87,7 +85,7 @@ public class ListenersProcessorFactory {
     final Class<?> parentClass = entityClass.getSuperclass();
     if(nonNull(parentClass))
       currentClassMethods.addAll(getAllEntityMethodsHierarchy(parentClass));
-    return currentClassMethods;
+    return Collections.unmodifiableList(currentClassMethods);
   }
 
   private static List<Field> getAllEntityFieldsHierarchy(Class<?> entityClass) {
@@ -95,7 +93,7 @@ public class ListenersProcessorFactory {
     final Class<?> parentClass = entityClass.getSuperclass();
     if(nonNull(parentClass))
       currentClassFields.addAll(getAllEntityFieldsHierarchy(parentClass));
-    return currentClassFields;
+    return Collections.unmodifiableList(currentClassFields);
   }
 
   private static boolean isNotIgnoredField(Field declaredField) {
