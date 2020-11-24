@@ -10,7 +10,7 @@ import java.util.Properties;
 
 import static java.util.Arrays.asList;
 
-public class ConsumerFactory {
+public abstract class ConsumerFactory {
   public static Consumer<String, String> getConsumer(KafkaListerner kafkaListerner, Properties consumerProps) {
     final Properties props = new Properties();
     props.putAll(consumerProps);

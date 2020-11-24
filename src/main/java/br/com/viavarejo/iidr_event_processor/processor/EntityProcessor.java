@@ -1,13 +1,20 @@
 package br.com.viavarejo.iidr_event_processor.processor;
 
+import br.com.viavarejo.iidr_event_processor.exceptions.FieldMayBeNotNullException;
 import br.com.viavarejo.iidr_event_processor.exceptions.IIdrApplicationException;
+import org.json.simple.JSONObject;
 
 import java.util.List;
+import java.util.Set;
+
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class EntityProcessor {
   private final Class<?> entityClass;
-  public final List<Processor> processorList;
-  public final NonMappedFieldProcessor nonMappedFieldProcessor;
+  private final List<Processor> processorList;
+  private final NonMappedFieldProcessor nonMappedFieldProcessor;
 
   public EntityProcessor(Class<?> entityClass, List<Processor> processorList, NonMappedFieldProcessor nonMappedFieldProcessor) {
     this.entityClass = entityClass;
@@ -19,11 +26,45 @@ public class EntityProcessor {
     this(entityClass, processorList, null);
   }
 
-  public Object getEntityClassInstance() throws IIdrApplicationException {
+  private Object getEntityClassInstance() throws IIdrApplicationException {
     try {
       return entityClass.newInstance();
     } catch (IllegalAccessException | InstantiationException e) {
       throw new IIdrApplicationException(String.format("Fail to create a new instance of entity Class <%s> cause: %s", entityClass.getCanonicalName(), e.getMessage()));
     }
+  }
+
+  public Object bind(JSONObject jsonObject) throws IIdrApplicationException, FieldMayBeNotNullException {
+    final Object entityObject = map(this, jsonObject);
+    if(!jsonObject.isEmpty() && nonNull(nonMappedFieldProcessor)) {
+      nonMappedFieldProcessor.process(entityObject, jsonObject);
+    }
+    return entityObject;
+  }
+
+  private static Object map(EntityProcessor entityProcessor, JSONObject jsonObject) throws IIdrApplicationException, FieldMayBeNotNullException {
+    final Object entityObject = entityProcessor.getEntityClassInstance();
+    for (Processor processor : entityProcessor.processorList) {
+      if(processor.isCustomEntity){
+        processor.processCustomField(entityObject, map(processor.entityProcessor, jsonObject));
+        continue;
+      }
+      final String iidrValue = tryFindIIdrValue(processor.fieldNames, jsonObject);
+      if(isNull(iidrValue) && !processor.mayBeNull) {
+        throw new FieldMayBeNotNullException(format("No one of these <%s> was found in IIDR value ", processor.fieldNames.toString()));
+      }else if(nonNull(iidrValue)){
+        processor.process(entityObject, iidrValue.trim());
+      }
+    }
+    return entityObject;
+  }
+
+  private static String tryFindIIdrValue(Set<String> fieldNames, JSONObject jsonObject) {
+    for (String fieldName : fieldNames) {
+      final String value = (String) jsonObject.remove(fieldName);
+      if(nonNull(value))
+        return value;
+    }
+    return null;
   }
 }

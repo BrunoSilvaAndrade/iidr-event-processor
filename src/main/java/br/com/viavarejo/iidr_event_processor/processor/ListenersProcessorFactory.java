@@ -12,12 +12,23 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Objects.nonNull;
 
-public class ListenersProcessorFactory {
+public abstract class ListenersProcessorFactory {
 
-  public static List<Listener> getListeners(final Object listenerControllerObject) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
-    final Class<?>  listenerControllerClass = listenerControllerObject.getClass();
-    final Set<Method> listeners = getEligibleMethodListeners(listenerControllerClass);
-    return getListenerList(listeners);
+  public static List<Listener> getListeners(Object listenersControllerObject) throws  EntityWrongImplementationException, ListenerWrongImplemetationException, ClassNotFoundException {
+    final List<Listener> listenerList = new ArrayList<>();
+    for (Method method : getEligibleMethodListeners(listenersControllerObject.getClass())) {
+      final Type[] genericParameterTypes = method.getGenericParameterTypes();
+      final Parameter[] parameters = method.getParameters();
+
+      if (parameters.length != 1 || !parameters[0].getType().equals(List.class))
+        throw new ListenerWrongImplemetationException(format("The listeners must receive only one List of some entity, the method <%s> is not expecting it", method.getName()));
+
+      final Type type = ((ParameterizedType)genericParameterTypes[0]).getActualTypeArguments()[0];
+
+      Class<?> entityClass = Class.forName(type.getTypeName());
+      listenerList.add(new Listener(listenersControllerObject, method, new EntityProcessor(entityClass, mountProcessorList(entityClass), tryGetNonMappedFieldProcessor(entityClass))));
+    }
+    return Collections.unmodifiableList(listenerList);
   }
 
   private static Set<Method> getEligibleMethodListeners(Class<?> listenerControllerClass) {
@@ -28,23 +39,6 @@ public class ListenersProcessorFactory {
         listeners.add(method);
     }
     return Collections.unmodifiableSet(listeners);
-  }
-
-  private static List<Listener> getListenerList(Set<Method> methodSet) throws  EntityWrongImplementationException, ListenerWrongImplemetationException, ClassNotFoundException {
-    final List<Listener> listenerList = new ArrayList<>();
-    for (Method method : methodSet) {
-      final Type[] genericParameterTypes = method.getGenericParameterTypes();
-      final Parameter[] parameters = method.getParameters();
-
-      if (parameters.length != 1 || !parameters[0].getType().equals(List.class))
-        throw new ListenerWrongImplemetationException(format("The listeners must receive only one List of some entity, the method <%s> is not expecting it", method.getName()));
-
-      final Type type = ((ParameterizedType)genericParameterTypes[0]).getActualTypeArguments()[0];
-
-      Class<?> entityClass = Class.forName(type.getTypeName());
-      listenerList.add(new Listener(method, new EntityProcessor(entityClass, mountProcessorList(entityClass), tryGetNonMappedFieldProcessor(entityClass))));
-    }
-    return Collections.unmodifiableList(listenerList);
   }
 
   private static NonMappedFieldProcessor tryGetNonMappedFieldProcessor(Class<?> entityClass) throws EntityWrongImplementationException {
@@ -115,7 +109,7 @@ public class ListenersProcessorFactory {
       final Parameter parameter = method.getParameters()[0];
       final boolean mayBeNull = !parameter.isAnnotationPresent(IIDRNonNull.class);
       try {
-        return new MethodProcessor(method, FieldParseFactory.getParserByType(parameter.getType(), parameter.getAnnotation(IIDRPattern.class)), mayBeNull, fieldNames);
+        return new MethodProcessor(method, IIdrValueParserFactory.getParser(parameter.getType(), parameter.getAnnotation(IIDRPattern.class)), mayBeNull, fieldNames);
       } catch (UnsupportedTypeException unsupportedTypeException) {
         throw new EntityWrongImplementationException("A method IIDRSetter annotated only must have a type IIDR's parsable, not custom entities");
       }
@@ -128,7 +122,7 @@ public class ListenersProcessorFactory {
     final boolean mayBeNull = !field.isAnnotationPresent(IIDRNonNull.class);
     final Set<String> fieldNames = getAllFieldPossibleNames(field);
     try {
-      return new FieldProcessor(field, FieldParseFactory.getParserByType(field.getType(), field.getAnnotation(IIDRPattern.class)), mayBeNull, fieldNames);
+      return new FieldProcessor(field, IIdrValueParserFactory.getParser(field.getType(), field.getAnnotation(IIDRPattern.class)), mayBeNull, fieldNames);
     } catch (UnsupportedTypeException ignored) {
       final EntityProcessor entityProcessor = new EntityProcessor(field.getType(), mountProcessorList(field.getType()));
       return  new FieldProcessor(field, entityProcessor);

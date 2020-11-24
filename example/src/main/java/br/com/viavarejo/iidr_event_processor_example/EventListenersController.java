@@ -11,9 +11,9 @@ public class EventListenersController {
   public void someWorker(List<Filial> filialList){
     System.out.println("List size: "+ filialList.size());
     filialList.forEach(filial -> {
-      System.out.println(filial.getOperation());
-      System.out.println(filial.getOperationTimestamp());
-      System.out.println(filial.getDataInauguracao());
+      System.out.println("IIDR operation : " + filial.getOperation());
+      System.out.println("IIDR operation timestamp : " + filial.getOperationTimestamp());
+      System.out.println("Filial data Inauguracao : " + filial.getDataInauguracao());
       System.out.println("Empresa: "+filial.getEmpresa().getCodigo());
       System.out.println("Test method IIDRSetter : " + filial.getNomeFilial());
       System.out.println("Has NonMappedFields : " + filial.hasNonMappedFields());

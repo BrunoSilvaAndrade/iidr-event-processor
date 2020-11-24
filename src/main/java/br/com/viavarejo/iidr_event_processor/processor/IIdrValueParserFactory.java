@@ -18,18 +18,17 @@ import java.util.Date;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
-public class FieldParseFactory {
-  private FieldParseFactory(){}
+public abstract class IIdrValueParserFactory {
 
-  private static final FieldParser STRING = (v) -> v;
-  private static final FieldParser LONG = Long::parseLong;
-  private static final FieldParser INT = Integer::parseInt;
-  private static final FieldParser FLOAT = Float::parseFloat;
-  private static final FieldParser DOUBLE = Double::parseDouble;
-  private static final FieldParser BOOLEAN = Boolean::parseBoolean;
-  private static final FieldParser BIGDECIMAL = BigDecimal::new;
+  private static final IIdrValueParser STRING = (v) -> v;
+  private static final IIdrValueParser LONG = Long::parseLong;
+  private static final IIdrValueParser INT = Integer::parseInt;
+  private static final IIdrValueParser FLOAT = Float::parseFloat;
+  private static final IIdrValueParser DOUBLE = Double::parseDouble;
+  private static final IIdrValueParser BOOLEAN = Boolean::parseBoolean;
+  private static final IIdrValueParser BIGDECIMAL = BigDecimal::new;
 
-  public static FieldParser getParserByType(Class<?> type, IIDRPattern IIDRPattern) throws UnsupportedTypeException, EntityWrongImplementationException {
+  public static IIdrValueParser getParser(Class<?> type, IIDRPattern IIDRPattern) throws UnsupportedTypeException, EntityWrongImplementationException {
 
     if(String.class.equals(type)) {
       return STRING;

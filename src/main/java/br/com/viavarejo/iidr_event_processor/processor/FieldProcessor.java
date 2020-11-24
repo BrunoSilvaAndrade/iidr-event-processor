@@ -10,8 +10,8 @@ import static java.lang.String.format;
 public class FieldProcessor extends Processor {
   final public Field field;
 
-  FieldProcessor(Field field, FieldParser fieldParser, boolean mayBeNull, Set<String> fieldNames) {
-    super(fieldParser, mayBeNull, fieldNames, false, null);
+  FieldProcessor(Field field, IIdrValueParser iidrValueParser, boolean mayBeNull, Set<String> fieldNames) {
+    super(iidrValueParser, mayBeNull, fieldNames, false, null);
     this.field = field;
   }
 
@@ -32,7 +32,7 @@ public class FieldProcessor extends Processor {
   @Override
   public void process(Object entityObject, String iidrValue) throws IIdrApplicationException {
     try{
-      field.set(entityObject, fieldParser.parse(iidrValue));
+      field.set(entityObject, iidrValueParser.parse(iidrValue));
     }catch (Exception e){
       throw new IIdrApplicationException(format("Fail to parse iidrValue <%s> of field <%s> of class %s", iidrValue, field.getName(), entityObject.getClass().getCanonicalName()), e);
     }

@@ -1,6 +1,5 @@
 package br.com.viavarejo.iidr_event_processor.application;
 
-import br.com.viavarejo.iidr_event_processor.annotations.KafkaListerner;
 import br.com.viavarejo.iidr_event_processor.exceptions.*;
 import br.com.viavarejo.iidr_event_processor.processor.EntityProcessor;
 import br.com.viavarejo.iidr_event_processor.processor.Listener;
@@ -12,7 +11,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,18 +27,16 @@ public class IIdrApplication {
   private ExecutorService executors;
   private final List<Listener> listenerList;
   private final Properties kafkaConsumerProperties;
-  private final Object listenerControllerObject;
   private final int remainingRetries;
 
   private boolean shutdownRequested = false;
   private boolean hasError = false;
 
 
-  private IIdrApplication(final List<Listener> listenerList, final Object listenerControllerObject, final Properties kafkaConsumerProperties, final IIdrEntityParserErrorCallback callback, final int remainingRetries) {
+  private IIdrApplication(final List<Listener> listenerList, final Properties kafkaConsumerProperties, final IIdrEntityParserErrorCallback callback, final int remainingRetries) {
     this.remainingRetries = remainingRetries;
     this.listenerList = listenerList;
     this.kafkaConsumerProperties = kafkaConsumerProperties;
-    this.listenerControllerObject = listenerControllerObject;
     this.callback = callback;
   }
 
@@ -50,7 +46,7 @@ public class IIdrApplication {
       final IIdrEntityParserErrorCallback callback,
       final int remainingRetries
   ) throws ClassNotFoundException, EntityWrongImplementationException, ListenerWrongImplemetationException {
-    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessorFactory.getListeners(listenerControllerObject), listenerControllerObject, kafkaConsumerProperties, callback, remainingRetries);
+    final IIdrApplication iidrApplication = new IIdrApplication(ListenersProcessorFactory.getListeners(listenerControllerObject), kafkaConsumerProperties, callback, remainingRetries);
     iidrApplication.run();
     return iidrApplication;
   }
@@ -68,10 +64,9 @@ public class IIdrApplication {
       executors = Executors.newFixedThreadPool(listenerList.size());
       for(Listener listener: listenerList) {
         executors.execute(() -> {
-          final Method method = listener.method;
           final JSONParser jsonParser = new JSONParser();
           final EntityProcessor entityProcessor = listener.entityProcessor;
-          final Consumer<String, String> consumer = ConsumerFactory.getConsumer(method.getDeclaredAnnotation(KafkaListerner.class), kafkaConsumerProperties);
+          final Consumer<String, String> consumer = ConsumerFactory.getConsumer(listener.getKafkaListenerAnnotation(), kafkaConsumerProperties);
 
           List<ConsumerRecord<String, String>> records = new ArrayList<>();
           List<Object> entityObjectList = new ArrayList<>();
@@ -92,15 +87,14 @@ public class IIdrApplication {
               for (ConsumerRecord<String, String> record : records) {
                 try {
                   final JSONObject jsonObject = (JSONObject) jsonParser.parse(record.value());
-                  final Object entityObject = IIdrObjectMapper.mapObject(entityProcessor, jsonObject);
-                  entityObjectList.add(entityObject);
+                  entityObjectList.add(entityProcessor.bind(jsonObject));
                 }catch (IIdrApplicationException | FieldMayBeNotNullException e) {
                   callback.call(e,record);
                 }catch (ParseException pe){
                   callback.call(new WrongJsonSyntaxException(pe), record);
                 }
               }
-              method.invoke(listenerControllerObject, entityObjectList);
+              listener.injectEntityObjectList(entityObjectList);
             } catch (Exception e) {
               e.printStackTrace();
               if (remainingRetries == 0) {
