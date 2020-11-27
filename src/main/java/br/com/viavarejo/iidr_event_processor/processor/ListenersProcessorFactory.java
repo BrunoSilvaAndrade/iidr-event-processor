@@ -91,7 +91,7 @@ public abstract class ListenersProcessorFactory {
   }
 
   private static boolean isNotIgnoredField(Field declaredField) {
-    return !declaredField.isAnnotationPresent(IIDRIgnore.class) && !declaredField.isAnnotationPresent(NonMappedFields.class);
+    return !declaredField.isAnnotationPresent(IIDRIgnore.class) && !declaredField.isAnnotationPresent(NonMappedFields.class) && !Modifier.isFinal(declaredField.getModifiers());
   }
 
   private static Set<String> getAllFieldPossibleNames(Field declaredField) {
